@@ -167,6 +167,8 @@ namespace sgl {
 		quaternion(double w, double x, double y, double z);
 		quaternion(vecd3 axis, double theta);
 		
+		quaternion operator!();
+		
 		static quaternion hamilton(quaternion a, quaternion b);
 		
 		vecd3 apply(vecd3 in);

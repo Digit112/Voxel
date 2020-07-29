@@ -53,6 +53,8 @@ namespace sgl {
 		gcv.foreground = id.foreground;
 		gcv.background = id.background;
 		
+//		XSetLineAttributes(d, gc, 4, LineSolid, CapButt, JoinMiter);
+		
 		XVisualInfo vi;
 		XMatchVisualInfo(d, s, sd, TrueColor, &vi);
 		v = vi.visual;

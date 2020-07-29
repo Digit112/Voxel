@@ -15,13 +15,18 @@ namespace sgl {
 		veci2* e;
 		
 		mesh_wire();
+		mesh_wire(const mesh_wire&);
+		mesh_wire(int pn, int en);
 		mesh_wire(vecd3* p, int pn, veci2* e, int en);
 		
-		mesh_wire(unsigned short primitive);
+		mesh_wire(unsigned short primitive, int opt);
+		
+		void operator=(const mesh_wire&);
 		
 		~mesh_wire();
 		
 		static const unsigned short CUBE = 0;
+		static const unsigned short CYLINDER = 1;
 	};
 }
 

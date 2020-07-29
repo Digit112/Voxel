@@ -242,19 +242,19 @@ namespace sgl {
 		z = axis.z * s;
 	}
 	
+	quaternion quaternion::operator!() {
+		return quaternion(w, -x, -y, -z);
+	}
+	
 	quaternion quaternion::hamilton(quaternion a, quaternion b) {
-		return quaternion(	a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z,
-									a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y,
-									a.w*b.y - a.x*b.z + a.y*b.w + a.z*b.x,
-									a.w*b.z + a.x*b.y - a.y*b.x + a.z*b.w);
+		return quaternion(a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z,
+                      a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y,
+                      a.w*b.y - a.x*b.z + a.y*b.w + a.z*b.x,
+                      a.w*b.z + a.x*b.y - a.y*b.x + a.z*b.w);
 	}
 	
 	vecd3 quaternion::apply(vecd3 in) {
-		quaternion inv = quaternion(w, -x, -y, -z);
-		quaternion inq = quaternion(0, in.x, in.y, in.z);
-		
-		quaternion out = hamilton(hamilton(*this, inq), inv);
-		
+		quaternion out = hamilton(hamilton(*this, quaternion(0, in.x, in.y, in.z)), !*this);
 		return vecd3(out.x, out.y, out.z);
 	}
 	

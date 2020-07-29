@@ -17,9 +17,14 @@ namespace sgl {
 		// TODO change to union
 		mesh_wire m;
 		
+		object();
+		
 		void translate(vecd3 t);
-		void rotate(quaternion r);
+		void rotate(quaternion r, bool is_global);
+		void rotate(vecd3 axis, double theta, bool is_global);
 		void scale(vecd3 s);
+		
+		mesh_wire& applied(mesh_wire& o);
 	};
 }
 
