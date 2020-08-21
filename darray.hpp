@@ -19,8 +19,10 @@ public:
 	
 	void operator=(const darray<T>&);
 	
-	// Access element at location. Supports negative values to index from back and bound checking.
-	T& operator[](int i);
+	// Access element at index. Supports negative indecis to index from back and bound checking.
+	T& operator()(int i);
+	// Access element at index. Performs no error checking and does not support negative indices.
+	inline T& operator[](int i);
 	
 	// Set all values in the darray to "def"
 	void initialize(T def);

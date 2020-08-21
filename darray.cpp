@@ -16,9 +16,11 @@ darray<T>::darray(int s, int c) : size(s), cap(c) {
 
 template<class T>
 darray<T>::darray(const darray<T>& a) : size(a.size), cap(a.cap) {
-	data = new T[cap];
-	for (int i = 0; i < size; i++) {
-		data[i] = a.data[i];
+	if (cap > 0) {
+		data = new T[cap];
+		for (int i = 0; i < size; i++) {
+			data[i] = a.data[i];
+		}
 	}
 }
 
@@ -37,7 +39,7 @@ void darray<T>::operator=(const darray<T>& a) {
 }
 
 template<class T>
-T& darray<T>::operator[](int i) {
+T& darray<T>::operator()(int i) {
 	if (i < 0 && -i <= size) {
 		return data[size+i];
 	}
@@ -46,6 +48,11 @@ T& darray<T>::operator[](int i) {
 	}
 	printf("Error: Attempt to access darray of size %d at invalid index %d.\n", size, i);
 	return data[0];
+}
+
+template<class T>
+inline T& darray<T>::operator[](int i) {
+	return data[i];
 }
 
 template<class T>

@@ -32,8 +32,8 @@ namespace sgl {
 	mesh_wire& object::applied(mesh_wire& o) {
 		o.pn = m.pn;
 		o.en = m.en;
-		o.p = new vecd3[o.pn];
-		o.e = new veci2[o.en];
+		o.p = darray<vecd3>(o.pn);
+		o.e = darray<veci2>(o.en);
 		for (int i = 0; i < o.pn; i++) {
 			o.p[i] = r.apply(m.p[i] * s) + p;
 		}

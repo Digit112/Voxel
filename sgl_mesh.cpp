@@ -1,29 +1,19 @@
 namespace sgl {
-	mesh_wire::mesh_wire() : p(NULL), pn(0), e(NULL), en(0) {}
-	mesh_wire::mesh_wire(const mesh_wire& m) : pn(m.pn), en(m.en) {
-		p = new vecd3[pn];
-		e = new veci2[en];
-		
-		for (int i = 0; i < pn; i++) {
-			m.p[i] = p[i];
-		}
-		for (int i = 0; i < en; i++) {
-			m.e[i] = e[i];
-		}
-	}
+	mesh_wire::mesh_wire() : p(), pn(0), e(), en(0) {}
+	
 	mesh_wire::mesh_wire(int pn, int en) : pn(pn), en(en) {
-		p = new vecd3[pn];
-		e = new veci2[en];
+		p = darray<vecd3>(pn);
+		e = darray<veci2>(en);
 	}
-	mesh_wire::mesh_wire(vecd3* p, int pn, veci2* e, int en) : p(p), pn(pn), e(e), en(en) {}
+	mesh_wire::mesh_wire(darray<vecd3> p, int pn, darray<veci2> e, int en) : p(p), pn(pn), e(e), en(en) {}
 	
 	mesh_wire::mesh_wire(primtype prim, int opt1 = 0, int opt2 = 0, double opt3 = 0.0) {
 		if (prim == CUBE) {
 			pn = 8;
 			en = 12;
 			
-			p = new vecd3[8];
-			e = new veci2[12];
+			p = darray<vecd3>(8);
+			e = darray<veci2>(12);
 			
 			p[0] = vecd3(-1, -1, -1);
 			p[1] = vecd3(-1, -1,  1);
@@ -50,8 +40,8 @@ namespace sgl {
 		else if (prim == POLYGON) {
 			pn = opt2;
 			en = opt2;
-			p = new vecd3[pn];
-			e = new veci2[en];
+			p = darray<vecd3>(pn);
+			e = darray<veci2>(en);
 			
 			double theta;
 			for (int i = 0; i < pn; i++) {
@@ -65,8 +55,8 @@ namespace sgl {
 			pn = 12;
 			en = 30;
 			
-			p = new vecd3[12];
-			e = new veci2[30];
+			p = darray<vecd3>(12);
+			e = darray<veci2>(30);
 			
 			double g = 2 / (1 + sqrt(5));
 			
@@ -132,10 +122,10 @@ namespace sgl {
 				pn = en * (i-1) + pn;
 				en = 30 * pow(pow(2, i-1), 2);
 				
-				delete[] p;
-				delete[] e;
-				p = new vecd3[pn];
-				e = new veci2[en];
+//				delete[] p;
+//				delete[] e;
+				p = darray<vecd3>(pn);
+				e = darray<veci2>(en);
 				for (int j = 0; j < opn; j++) {
 					p[j] = op[j];
 				}
@@ -194,8 +184,8 @@ namespace sgl {
 			pn = opt1 * 2;
 			en = opt1 * 3;
 			
-			p = new vecd3[pn];
-			e = new veci2[en];
+			p = darray<vecd3>(pn);
+			e = darray<veci2>(en);
 			
 			double x, y;
 			p[0] = vecd3(0, 1, 1);
@@ -219,8 +209,8 @@ namespace sgl {
 			pn = opt2 * opt1 + 2;
 			en = pn*2 + opt1 * 3;
 			
-			p = new vecd3[pn];
-			e = new veci2[en];
+			p = darray<vecd3>(pn);
+			e = darray<veci2>(en);
 			
 			double lr;
 			double lh;
@@ -266,8 +256,8 @@ namespace sgl {
 			pn = opt1 * opt2;
 			en = pn*2;
 			
-			p = new vecd3[pn];
-			e = new veci2[en];
+			p = darray<vecd3>(pn);
+			e = darray<veci2>(en);
 			
 			double lm;
 			double lM;
@@ -296,30 +286,6 @@ namespace sgl {
 					}
 				}
 			}
-		}
-	}
-	
-	void mesh_wire::operator=(const mesh_wire& a) {
-		pn = a.pn;
-		en = a.en;
-		
-		p = new vecd3[pn];
-		e = new veci2[en];
-		
-		for (int i = 0; i < a.pn; i++) {
-			p[i] = a.p[i];
-		}
-		for (int i = 0; i < a.en; i++) {
-			e[i] = a.e[i];
-		}
-	}
-	
-	mesh_wire::~mesh_wire() {
-		if (p != NULL) {
-			delete[] p;
-		}
-		if (e != NULL) {
-			delete[] e;
 		}
 	}
 }
