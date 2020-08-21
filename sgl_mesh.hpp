@@ -14,19 +14,18 @@ namespace sgl {
 		vecd3* p;
 		veci2* e;
 		
+		enum primtype : int {CUBE, POLYGON, ICOSAHEDRON, CYLINDER, UVSPHERE, TORUS};
+		
 		mesh_wire();
 		mesh_wire(const mesh_wire&);
 		mesh_wire(int pn, int en);
 		mesh_wire(vecd3* p, int pn, veci2* e, int en);
 		
-		mesh_wire(unsigned short primitive, int opt);
+		mesh_wire(primtype prim, int opt1, int opt2, double opt3);
 		
 		void operator=(const mesh_wire&);
 		
 		~mesh_wire();
-		
-		static const unsigned short CUBE = 0;
-		static const unsigned short CYLINDER = 1;
 	};
 }
 

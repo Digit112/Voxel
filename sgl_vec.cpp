@@ -23,13 +23,23 @@ namespace sgl {
 	vecd2 vecd2::operator/(vecd2 a) {
 		return vecd2(x/a.x, y/a.y);
 	}
+	vecd2 vecd2::operator*(double a) {
+		return vecd2(x*a, y*a);
+	}
+	vecd2 vecd2::operator/(double a) {
+		return vecd2(x/a, y/a);
+	}
 	vecd2 vecd2::operator-() {
 		return vecd2(-x, -y);
 	}
 	
 	vecd2 vecd2::normalize() {
 		double m = mag();
-		return vecd2(x / m, y / m);
+		return vecd2(x/m, y/m);
+	}
+	vecd2 vecd2::normalize(double t) {
+		double m = mag() / t;
+		return vecd2(x/m, y/m);
 	}
 	
 	double vecd2::dot(vecd2 a, vecd2 b) {
@@ -60,13 +70,23 @@ namespace sgl {
 	veci2 veci2::operator/(veci2 a) {
 		return veci2(x/a.x, y/a.y);
 	}
+	veci2 veci2::operator*(int a) {
+		return veci2(x*a, y*a);
+	}
+	veci2 veci2::operator/(int a) {
+		return veci2(x/a, y/a);
+	}
 	veci2 veci2::operator-() {
 		return veci2(-x, -y);
 	}
 	
 	vecd2 veci2::normalize() {
 		double m = mag();
-		return vecd2(x / m, y / m);
+		return vecd2(x/m, y/m);
+	}
+	vecd2 veci2::normalize(double t) {
+		double m = mag() / t;
+		return vecd2(x/m, y/m);
 	}
 	
 	int veci2::dot(vecd2 a, vecd2 b) {
@@ -97,13 +117,23 @@ namespace sgl {
 	vecd3 vecd3::operator/(vecd3 a) {
 		return vecd3(x/a.x, y/a.y, z/a.z);
 	}
+	vecd3 vecd3::operator*(double a) {
+		return vecd3(x*a, y*a, z*a);
+	}
+	vecd3 vecd3::operator/(double a) {
+		return vecd3(x/a, y/a, z/a);
+	}
 	vecd3 vecd3::operator-() {
 		return vecd3(-x, -y, -z);
 	}
 	
 	vecd3 vecd3::normalize() {
 		double m = mag();
-		return vecd3(x / m, y / m, z / m);
+		return vecd3(x/m, y/m, z/m);
+	}
+	vecd3 vecd3::normalize(double t) {
+		double m = mag() / t;
+		return vecd3(x/m, y/m, z/m);
 	}
 	
 	double vecd3::dot(vecd3 a, vecd3 b) {
@@ -138,13 +168,23 @@ namespace sgl {
 	veci3 veci3::operator/(veci3 a) {
 		return veci3(x/a.x, y/a.y, z/a.z);
 	}
+	veci3 veci3::operator*(int a) {
+		return veci3(x*a, y*a, z*a);
+	}
+	veci3 veci3::operator/(int a) {
+		return veci3(x/a, y/a, z/a);
+	}
 	veci3 veci3::operator-() {
 		return veci3(-x, -y, -z);
 	}
 	
 	vecd3 veci3::normalize() {
 		double m = mag();
-		return vecd3(x / m, y / m, z / m);
+		return vecd3(x/m, y/m, z/m);
+	}
+	vecd3 veci3::normalize(double t) {
+		double m = mag() / t;
+		return vecd3(x/m, y/m, z/m);
 	}
 	
 	int veci3::dot(veci3 a, veci3 b) {
@@ -179,13 +219,23 @@ namespace sgl {
 	vecd4 vecd4::operator/(vecd4 a) {
 		return vecd4(w/a.w, x/a.x, y/a.y, z/a.z);
 	}
+	vecd4 vecd4::operator*(double a) {
+		return vecd4(w*a, x*a, y*a, z*a);
+	}
+	vecd4 vecd4::operator/(double a) {
+		return vecd4(w/a, x/a, y/a, z/a);
+	}
 	vecd4 vecd4::operator-() {
 		return vecd4(-w, -x, -y, -z);
 	}
 	
 	vecd4 vecd4::normalize() {
 		double m = mag();
-		return vecd4(w / m, x / m, y / m, z / m);
+		return vecd4(w/m, x/m, y/m, z/m);
+	}
+	vecd4 vecd4::normalize(double t) {
+		double m = mag() / t;
+		return vecd4(w/m, x/m, y/m, z/m);
 	}
 	
 	double vecd4::dot(vecd4 a, vecd4 b) {
@@ -216,6 +266,12 @@ namespace sgl {
 	veci4 veci4::operator/(veci4 a) {
 		return veci4(w/a.w, x/a.x, y/a.y, z/a.z);
 	}
+	veci4 veci4::operator*(int a) {
+		return veci4(w*a, x*a, y*a, z*a);
+	}
+	veci4 veci4::operator/(int a) {
+		return veci4(w/a, x/a, y/a, z/a);
+	}
 	veci4 veci4::operator-() {
 		return veci4(-w, -x, -y, -z);
 	}
@@ -223,6 +279,10 @@ namespace sgl {
 	vecd4 veci4::normalize() {
 		double m = mag();
 		return vecd4(w / m, x / m, y / m, z / m);
+	}
+	vecd4 veci4::normalize(double t) {
+		double m = mag() / t;
+		return vecd4(w/m, x/m, y/m, z/m);
 	}
 	
 	int veci4::dot(veci4 a, veci4 b) {

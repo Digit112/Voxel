@@ -31,10 +31,13 @@ namespace sgl {
 		vecd2 operator-(vecd2 a);
 		vecd2 operator*(vecd2 a);
 		vecd2 operator/(vecd2 a);
+		vecd2 operator*(double a);
+		vecd2 operator/(double a);
 		vecd2 operator-();
 		
 		// Returns a normalized version of this vector
 		vecd2 normalize();
+		vecd2 normalize(double t);
 		
 		// Returns the Dot Product of two vectors
 		static double dot(vecd2 a, vecd2 b);	
@@ -57,10 +60,13 @@ namespace sgl {
 		veci2 operator-(veci2 a);
 		veci2 operator*(veci2 a);
 		veci2 operator/(veci2 a);
+		veci2 operator*(int a);
+		veci2 operator/(int a);
 		veci2 operator-();
 		
 		// Returns a normalized version of this vector
 		vecd2 normalize();
+		vecd2 normalize(double t);
 		
 		static int dot(vecd2 a, vecd2 b);	
 	};
@@ -81,9 +87,12 @@ namespace sgl {
 		vecd3 operator-(vecd3 a);
 		vecd3 operator*(vecd3 a);
 		vecd3 operator/(vecd3 a);
+		vecd3 operator*(double a);
+		vecd3 operator/(double a);
 		vecd3 operator-();
 		
 		vecd3 normalize();
+		vecd3 normalize(double t);
 		
 		static double dot(vecd3 a, vecd3 b);
 		static vecd3 cross(vecd3 a, vecd3 b);
@@ -105,9 +114,12 @@ namespace sgl {
 		veci3 operator-(veci3 a);
 		veci3 operator*(veci3 a);
 		veci3 operator/(veci3 a);
+		veci3 operator*(int a);
+		veci3 operator/(int a);
 		veci3 operator-();
 		
 		vecd3 normalize();
+		vecd3 normalize(double t);
 		
 		static int dot(veci3 a, veci3 b);
 		static veci3 cross(veci3 a, veci3 b);
@@ -130,9 +142,12 @@ namespace sgl {
 		vecd4 operator-(vecd4 a);
 		vecd4 operator*(vecd4 a);
 		vecd4 operator/(vecd4 a);
+		vecd4 operator*(double a);
+		vecd4 operator/(double a);
 		vecd4 operator-();
 		
 		vecd4 normalize();
+		vecd4 normalize(double t);
 		
 		static double dot(vecd4 a, vecd4 b);
 	};
@@ -154,9 +169,12 @@ namespace sgl {
 		veci4 operator-(veci4 a);
 		veci4 operator*(veci4 a);
 		veci4 operator/(veci4 a);
+		veci4 operator*(int a);
+		veci4 operator/(int a);
 		veci4 operator-();
 		
 		vecd4 normalize();
+		vecd4 normalize(double t);
 		
 		static int dot(veci4 a, veci4 b);
 	};
