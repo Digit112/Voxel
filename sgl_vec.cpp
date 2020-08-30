@@ -11,16 +11,16 @@ namespace sgl {
 		return x*x + y*y;
 	}
 	
-	vecd2 vecd2::operator+(vecd2 a) {
+	vecd2 vecd2::operator+(const vecd2& a) const {
 		return vecd2(x+a.x, y+a.y);
 	}
-	vecd2 vecd2::operator-(vecd2 a) {
+	vecd2 vecd2::operator-(const vecd2& a) const {
 		return vecd2(x-a.x, y-a.y);
 	}
-	vecd2 vecd2::operator*(vecd2 a) {
+	vecd2 vecd2::operator*(const vecd2& a) const {
 		return vecd2(x*a.x, y*a.y);
 	}
-	vecd2 vecd2::operator/(vecd2 a) {
+	vecd2 vecd2::operator/(const vecd2& a) const {
 		return vecd2(x/a.x, y/a.y);
 	}
 	vecd2 vecd2::operator*(double a) {
@@ -58,16 +58,16 @@ namespace sgl {
 		return x*x + y*y;
 	}
 	
-	veci2 veci2::operator+(veci2 a) {
+	veci2 veci2::operator+(const veci2& a) const {
 		return veci2(x+a.x, y+a.y);
 	}
-	veci2 veci2::operator-(veci2 a) {
+	veci2 veci2::operator-(const veci2& a) const {
 		return veci2(x-a.x, y-a.y);
 	}
-	veci2 veci2::operator*(veci2 a) {
+	veci2 veci2::operator*(const veci2& a) const {
 		return veci2(x*a.x, y*a.y);
 	}
-	veci2 veci2::operator/(veci2 a) {
+	veci2 veci2::operator/(const veci2& a) const {
 		return veci2(x/a.x, y/a.y);
 	}
 	veci2 veci2::operator*(int a) {
@@ -105,16 +105,16 @@ namespace sgl {
 		return x*x + y*y + z*z;
 	}
 	
-	vecd3 vecd3::operator+(vecd3 a) {
+	vecd3 vecd3::operator+(const vecd3& a) const {
 		return vecd3(x+a.x, y+a.y, z+a.z);
 	}
-	vecd3 vecd3::operator-(vecd3 a) {
+	vecd3 vecd3::operator-(const vecd3& a) const {
 		return vecd3(x-a.x, y-a.y, z-a.z);
 	}
-	vecd3 vecd3::operator*(vecd3 a) {
+	vecd3 vecd3::operator*(const vecd3& a) const {
 		return vecd3(x*a.x, y*a.y, z*a.x);
 	}
-	vecd3 vecd3::operator/(vecd3 a) {
+	vecd3 vecd3::operator/(const vecd3& a) const {
 		return vecd3(x/a.x, y/a.y, z/a.z);
 	}
 	vecd3 vecd3::operator*(double a) {
@@ -156,16 +156,16 @@ namespace sgl {
 		return x*x + y*y + z*z;
 	}
 	
-	veci3 veci3::operator+(veci3 a) {
+	veci3 veci3::operator+(const veci3& a) const {
 		return veci3(x+a.x, y+a.y, z+a.z);
 	}
-	veci3 veci3::operator-(veci3 a) {
+	veci3 veci3::operator-(const veci3& a) const {
 		return veci3(x-a.x, y-a.y, z-a.z);
 	}
-	veci3 veci3::operator*(veci3 a) {
+	veci3 veci3::operator*(const veci3& a) const {
 		return veci3(x*a.x, y*a.y, z*a.x);
 	}
-	veci3 veci3::operator/(veci3 a) {
+	veci3 veci3::operator/(const veci3& a) const {
 		return veci3(x/a.x, y/a.y, z/a.z);
 	}
 	veci3 veci3::operator*(int a) {
@@ -207,16 +207,16 @@ namespace sgl {
 		return w*w + x*x + y*y + z*z;
 	}
 	
-	vecd4 vecd4::operator+(vecd4 a) {
+	vecd4 vecd4::operator+(const vecd4& a) const {
 		return vecd4(w+a.w, x+a.x, y+a.y, z+a.z);
 	}
-	vecd4 vecd4::operator-(vecd4 a) {
+	vecd4 vecd4::operator-(const vecd4& a) const {
 		return vecd4(w-a.w, x-a.x, y-a.y, z-a.z);
 	}
-	vecd4 vecd4::operator*(vecd4 a) {
+	vecd4 vecd4::operator*(const vecd4& a) const {
 		return vecd4(w*a.w, x*a.x, y*a.y, z*a.x);
 	}
-	vecd4 vecd4::operator/(vecd4 a) {
+	vecd4 vecd4::operator/(const vecd4& a) const {
 		return vecd4(w/a.w, x/a.x, y/a.y, z/a.z);
 	}
 	vecd4 vecd4::operator*(double a) {
@@ -254,16 +254,16 @@ namespace sgl {
 		return w*w + x*x + y*y + z*z;
 	}
 	
-	veci4 veci4::operator+(veci4 a) {
+	veci4 veci4::operator+(const veci4& a) const {
 		return veci4(w+a.w, x+a.x, y+a.y, z+a.z);
 	}
-	veci4 veci4::operator-(veci4 a) {
+	veci4 veci4::operator-(const veci4& a) const {
 		return veci4(w-a.w, x-a.x, y-a.y, z-a.z);
 	}
-	veci4 veci4::operator*(veci4 a) {
+	veci4 veci4::operator*(const veci4& a) const {
 		return veci4(w*a.w, x*a.x, y*a.y, z*a.x);
 	}
-	veci4 veci4::operator/(veci4 a) {
+	veci4 veci4::operator/(const veci4& a) const {
 		return veci4(w/a.w, x/a.x, y/a.y, z/a.z);
 	}
 	veci4 veci4::operator*(int a) {
@@ -302,20 +302,28 @@ namespace sgl {
 		z = axis.z * s;
 	}
 	
-	quaternion quaternion::operator!() {
+	quaternion quaternion::operator!() const {
 		return quaternion(w, -x, -y, -z);
 	}
 	
-	quaternion quaternion::hamilton(quaternion a, quaternion b) {
-		return quaternion(a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z,
-                      a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y,
-                      a.w*b.y - a.x*b.z + a.y*b.w + a.z*b.x,
-                      a.w*b.z + a.x*b.y - a.y*b.x + a.z*b.w);
+	quaternion quaternion::hamilton(const quaternion& a, const quaternion& b) {
+		return quaternion(a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z, a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y, a.w*b.y - a.x*b.z + a.y*b.w + a.z*b.x, a.w*b.z + a.x*b.y - a.y*b.x + a.z*b.w);
 	}
 	
-	vecd3 quaternion::apply(vecd3 in) {
-		quaternion out = hamilton(hamilton(*this, quaternion(0, in.x, in.y, in.z)), !*this);
-		return vecd3(out.x, out.y, out.z);
+	vecd3 quaternion::vhamilton(const quaternion& a, const quaternion& b) {
+		return vecd3(a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y, a.w*b.y - a.x*b.z + a.y*b.w + a.z*b.x, a.w*b.z + a.x*b.y - a.y*b.x + a.z*b.w);
+	}
+	
+	quaternion& quaternion::mhamilton(quaternion& a, const quaternion& b) {
+		a.w = a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z;
+		a.x = a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y;
+		a.y = a.w*b.y - a.x*b.z + a.y*b.w + a.z*b.x;
+		a.z = a.w*b.z + a.x*b.y - a.y*b.x + a.z*b.w;
+		return a;
+	}
+	
+	vecd3 quaternion::apply(const vecd3& in) {
+		return vhamilton(hamilton(*this, quaternion(0, in.x, in.y, in.z)), !*this);
 	}
 	
 	vecd3 quaternion::rotate(vecd3 in, vecd3 axis_offset, vecd3 axis_dir, double theta) {

@@ -51,6 +51,24 @@ namespace sgl {
 			}
 			e[0] = veci2(0, pn-1);
 		}
+		else if (prim == STAR) {
+			opt2 *= 2;
+			pn = opt2;
+			en = opt2;
+			p = darray<vecd3>(pn);
+			e = darray<veci2>(en);
+			
+			double theta;
+			for (int i = 0; i < pn; i++) {
+				theta = (double) i/pn * 6.28318;
+				p[i] = vecd3(cos(theta), sin(theta), 0);
+				e[i] = veci2(i, i-1);
+				if (i % 2 == 0) {
+					p[i] = p[i]*1.5;
+				}
+			}
+			e[0] = veci2(0, pn-1);
+		}
 		else if (prim == ICOSAHEDRON) {
 			pn = 12;
 			en = 30;
@@ -288,4 +306,40 @@ namespace sgl {
 			}
 		}
 	}
+	
+	void mesh_wire::translate(vecd3 t) {
+		for (int i = 0; i < pn; i++) {
+			p[i] = p[i] + t;
+		}
+	}
+	
+	void mesh_wire::rotate(quaternion r) {
+		for (int i = 0; i < pn; i++) {
+			p[i] = r.apply(p[i]);
+		}
+	}
+	
+	void mesh_wire::rotate(vecd3 axis, double theta) {
+		quaternion r = quaternion(axis, theta);
+		for (int i = 0; i < pn; i++) {
+			p[i] = r.apply(p[i]);
+		}
+	}
+	
+	void mesh_wire::scale(vecd3 s) {
+		for (int i = 0; i < pn; i++) {
+			p[i] = p[i] * s;
+		}
+	}
 }
+
+
+
+
+
+
+
+
+
+
+

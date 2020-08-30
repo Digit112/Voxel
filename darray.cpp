@@ -1,3 +1,4 @@
+/* DARRAY */
 template<class T>
 darray<T>::darray() : data(NULL), size(0), cap(0) {}
 
@@ -10,6 +11,7 @@ template<class T>
 darray<T>::darray(int s, int c) : size(s), cap(c) {
 	if (s > c) {
 		printf("Error: darray initialized with greater size than capacity.\n");
+		exit(1);
 	}
 	data = new T[c];
 }
@@ -43,11 +45,11 @@ T& darray<T>::operator()(int i) {
 	if (i < 0 && -i <= size) {
 		return data[size+i];
 	}
-	if (i >= 0 && i < size) {
+	else if (i >= 0 && i < size) {
 		return data[i];
 	}
 	printf("Error: Attempt to access darray of size %d at invalid index %d.\n", size, i);
-	return data[0];
+	exit(1);
 }
 
 template<class T>
@@ -119,5 +121,3 @@ darray<T>::~darray() {
 		delete[] data;
 	}
 }
-
-

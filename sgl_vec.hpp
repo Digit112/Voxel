@@ -27,10 +27,10 @@ namespace sgl {
 		// Returns the squared magnitude of this vector
 		double sqr_mag();
 		
-		vecd2 operator+(vecd2 a);
-		vecd2 operator-(vecd2 a);
-		vecd2 operator*(vecd2 a);
-		vecd2 operator/(vecd2 a);
+		vecd2 operator+(const vecd2& a) const;
+		vecd2 operator-(const vecd2& a) const;
+		vecd2 operator*(const vecd2& a) const;
+		vecd2 operator/(const vecd2& a) const;
 		vecd2 operator*(double a);
 		vecd2 operator/(double a);
 		vecd2 operator-();
@@ -56,10 +56,10 @@ namespace sgl {
 		// Returns the square magnitude of this vector
 		int sqr_mag();
 		
-		veci2 operator+(veci2 a);
-		veci2 operator-(veci2 a);
-		veci2 operator*(veci2 a);
-		veci2 operator/(veci2 a);
+		veci2 operator+(const veci2& a) const;
+		veci2 operator-(const veci2& a) const;
+		veci2 operator*(const veci2& a) const;
+		veci2 operator/(const veci2& a) const;
 		veci2 operator*(int a);
 		veci2 operator/(int a);
 		veci2 operator-();
@@ -83,10 +83,10 @@ namespace sgl {
 		double mag();
 		double sqr_mag();
 		
-		vecd3 operator+(vecd3 a);
-		vecd3 operator-(vecd3 a);
-		vecd3 operator*(vecd3 a);
-		vecd3 operator/(vecd3 a);
+		vecd3 operator+(const vecd3& a) const;
+		vecd3 operator-(const vecd3& a) const;
+		vecd3 operator*(const vecd3& a) const;
+		vecd3 operator/(const vecd3& a) const;
 		vecd3 operator*(double a);
 		vecd3 operator/(double a);
 		vecd3 operator-();
@@ -110,10 +110,10 @@ namespace sgl {
 		double mag();
 		int sqr_mag();
 		
-		veci3 operator+(veci3 a);
-		veci3 operator-(veci3 a);
-		veci3 operator*(veci3 a);
-		veci3 operator/(veci3 a);
+		veci3 operator+(const veci3& a) const;
+		veci3 operator-(const veci3& a) const;
+		veci3 operator*(const veci3& a) const;
+		veci3 operator/(const veci3& a) const;
 		veci3 operator*(int a);
 		veci3 operator/(int a);
 		veci3 operator-();
@@ -138,10 +138,10 @@ namespace sgl {
 		double mag();
 		double sqr_mag();
 		
-		vecd4 operator+(vecd4 a);
-		vecd4 operator-(vecd4 a);
-		vecd4 operator*(vecd4 a);
-		vecd4 operator/(vecd4 a);
+		vecd4 operator+(const vecd4& a) const;
+		vecd4 operator-(const vecd4& a) const;
+		vecd4 operator*(const vecd4& a) const;
+		vecd4 operator/(const vecd4& a) const;
 		vecd4 operator*(double a);
 		vecd4 operator/(double a);
 		vecd4 operator-();
@@ -165,10 +165,10 @@ namespace sgl {
 		double mag();
 		int sqr_mag();
 		
-		veci4 operator+(veci4 a);
-		veci4 operator-(veci4 a);
-		veci4 operator*(veci4 a);
-		veci4 operator/(veci4 a);
+		veci4 operator+(const veci4& a) const;
+		veci4 operator-(const veci4& a) const;
+		veci4 operator*(const veci4& a) const;
+		veci4 operator/(const veci4& a) const;
 		veci4 operator*(int a);
 		veci4 operator/(int a);
 		veci4 operator-();
@@ -179,21 +179,34 @@ namespace sgl {
 		static int dot(veci4 a, veci4 b);
 	};
 	
-	class quaternion : vecd4 {
+	class quaternion : public vecd4 {
 	public:
 		quaternion();
 		quaternion(double w, double x, double y, double z);
 		quaternion(vecd3 axis, double theta);
 		
-		quaternion operator!();
+		quaternion operator!() const;
 		
-		static quaternion hamilton(quaternion a, quaternion b);
+		static quaternion hamilton(const quaternion& a, const quaternion& b);
+		static vecd3 vhamilton(const quaternion& a, const quaternion& b);
 		
-		vecd3 apply(vecd3 in);
+		quaternion& mhamilton(quaternion& a, const quaternion& b);
+		
+		vecd3 apply(const vecd3& in);
 		
 		static vecd3 rotate(vecd3 in, vecd3 axis_offset, vecd3 axis_dir, double theta);
 	};
+
+	const vecd3 forward(1, 0, 0);
+	const vecd3 backword(-1, 0, 0);
+	const vecd3 right(0, 1, 0);
+	const vecd3 left(0, -1, 0);
+	const vecd3 up(0, 0, 1);
+	const vecd3 down(0, 0, -1);
+
+	const quaternion qid(1, 0, 0, 0);
 }
+
 
 #include "sgl_vec.cpp"
 

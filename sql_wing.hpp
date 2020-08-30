@@ -2,6 +2,7 @@
 #define sgl_wing
 
 #include "sgl_vec.hpp"
+#include "darray.hpp"
 
 namespace sgl {
 	namespace wing {
@@ -9,11 +10,15 @@ namespace sgl {
 		public:
 			vecd3 p;
 			rec_e* e;
+			
+			rec_v(vecd3 p, rec_e* e);
 		}
 		
 		class rec_f {
 		public:
 			rec_e* e;
+			
+			rec_f(rec_e* e);
 		}
 		
 		class rec_e {
@@ -28,13 +33,17 @@ namespace sgl {
 			rec_e* lp; // left predecessor edge
 			rec_e* rs; // right successor edge
 			rec_e* rp; // right predecessor edge
+			
+			rec_e(rec_v* b, rec_v* e,
+			      rec_f* l, rec_f* r,
+			      rec_e* ls, rec_e* lp, rec_e* rs, rec_e* rp);
 		}
 	}
 	
 	class wing_mesh {
-		wing::rec_v* v;
-		wing::rec_e* e;
-		wing::rec_f* f;
+		darray<wing::rec_v> v;
+		darray<wing::rec_e> e;
+		darray<wing::rec_f> f;
 	}
 }
 

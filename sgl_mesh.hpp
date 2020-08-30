@@ -15,11 +15,16 @@ namespace sgl {
 		darray<vecd3> p;
 		darray<veci2> e;
 		
-		enum primtype : int {CUBE, POLYGON, ICOSAHEDRON, CYLINDER, UVSPHERE, TORUS};
+		enum primtype : int {CUBE, POLYGON, STAR, ICOSAHEDRON, CYLINDER, UVSPHERE, TORUS};
 		
 		mesh_wire();
 		mesh_wire(int pn, int en);
 		mesh_wire(darray<vecd3> p, int pn, darray<veci2> e, int en);
+		
+		void translate(vecd3 t);
+		void rotate(quaternion r);
+		void rotate(vecd3 axis, double theta);
+		void scale(vecd3 s);
 		
 		mesh_wire(primtype prim, int opt1, int opt2, double opt3);
 	};
