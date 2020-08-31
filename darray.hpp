@@ -38,6 +38,8 @@ public:
 	T& operator()(int i);
 	// Access element at index. Performs no bound checking and does not support negative indices.
 	inline T& operator[](int i);
+	// Access element at index. Performs no bound checking and does not support negative indices.
+	inline T operator[](int i) const;
 	
 	// Set all values in the darray to "def"
 	void initialize(T def);

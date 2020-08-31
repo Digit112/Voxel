@@ -215,6 +215,14 @@ namespace sgl {
 		do_destroy = true;
 	}
 	
+	bool app_handle::get_key(unsigned int key) {
+		return key_states[key - 8];
+	}
+	
+	bool app_handle::get_button(unsigned int button) {
+		return button_states[button - 1];
+	}
+	
 	void app_handle::draw_pixel(int x, int y) {
 		XDrawPoint(d, pm, gc, x, y);
 	}
@@ -305,17 +313,73 @@ namespace sgl {
 			}
 			return ks[t];
 		}
-		
 	}
 	
-	bool app_handle::get_key(unsigned int key) {
-		return key_states[key - 8];
-	}
-	
-	bool app_handle::get_button(unsigned int button) {
-		return button_states[button - 1];
-	}
+	void app_handle::render(cam c, const object* o, int o_n) {
+		sgl::mesh_wire m;
+		for (int i = 0; i < o_n; i++) {
+			// Apply the inverse camera transform to all objects, then apply all object transforms to each verticy belonging to it.
+			// This allows you to treat the camera as having a default position and rotation.
+			c.apply(o[i].applied(m));
 			
+			// Convert theta to radians
+			double theta = c.theta * 3.14159/180;
+			
+			// Shorthands used for the endpoints of an edge, their difference, and the intersection between this edge and the
+			// clipping plane where appropriate.
+			vecd3 a;
+			vecd3 b;
+			vecd3 dif;
+			vecd3 clip_pt;
+			
+			// Holds the start and end points of the edge prior to render.
+			veci2 s;
+			veci2 e;
+			
+			// Cache trig value
+			double slope = tan(theta/2);
+			
+			// Iterate over and render each edge.
+			for (int j = 0; j < m.en; j++) {
+				a = m.p[m.e[j].x];
+				b = m.p[m.e[j].y];
+				// If both points are behind the clipping plane, skip this edge.
+				if (a.x < c.clipping && b.x < c.clipping) {
+					continue;
+				}
+				// If one point is behind the clipping plane and the other is in front, find the intersection between the edge and
+				// the clipping plane, and draw the line to that point instead.
+				else if (a.x < c.clipping && b.x >= c.clipping) {
+					dif = b - a;
+					clip_pt = dif / dif.x * (c.clipping - a.x) + a;
+					s.x = (int) ((clip_pt.y / (clip_pt.x * slope) + 1) / 2.0 * this->win_h);
+					s.y = (int) ((clip_pt.z / (clip_pt.x * slope) + 1) / 2.0 * this->win_h);
+					
+					e.x = (int) ((b.y / (b.x * slope) + 1) / 2.0 * this->win_h);
+					e.y = (int) ((b.z / (b.x * slope) + 1) / 2.0 * this->win_h);
+				}
+				else if (a.x >= c.clipping && b.x < c.clipping) {
+					dif = a - b;
+					clip_pt = dif / dif.x * (c.clipping - b.x) + b;
+					s.x = (int) ((clip_pt.y / (clip_pt.x * slope) + 1) / 2.0 * this->win_h);
+					s.y = (int) ((clip_pt.z / (clip_pt.x * slope) + 1) / 2.0 * this->win_h);
+					
+					e.x = (int) ((a.y / (a.x * slope) + 1) / 2.0 * this->win_h);
+					e.y = (int) ((a.z / (a.x * slope) + 1) / 2.0 * this->win_h);
+				}
+				// If both points are in front of the clipping plane, project them both normally
+				else {
+					s.x = (int) ((a.y / (a.x * slope) + 1) / 2.0 * this->win_h);
+					s.y = (int) ((a.z / (a.x * slope) + 1) / 2.0 * this->win_h);
+					
+					e.x = (int) ((b.y / (b.x * slope) + 1) / 2.0 * this->win_h);
+					e.y = (int) ((b.z / (b.x * slope) + 1) / 2.0 * this->win_h);
+				}
+				
+				this->draw_line(s.x, s.y, e.x, e.y);
+			}
+		}
+	}
 }
 
 

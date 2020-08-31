@@ -192,7 +192,7 @@ namespace sgl {
 		
 		quaternion& mhamilton(quaternion& a, const quaternion& b);
 		
-		vecd3 apply(const vecd3& in);
+		vecd3 apply(const vecd3& in) const;
 		
 		static vecd3 rotate(vecd3 in, vecd3 axis_offset, vecd3 axis_dir, double theta);
 	};

@@ -29,7 +29,7 @@ namespace sgl {
 		s = s * a;
 	}
 	
-	mesh_wire& object::applied(mesh_wire& o) {
+	mesh_wire& object::applied(mesh_wire& o) const {
 		o.pn = m.pn;
 		o.en = m.en;
 		o.p = darray<vecd3>(o.pn);

@@ -13,8 +13,6 @@ public:
 	int cx;
 	int cy;
 	
-	int theta;
-	
 	int opt1;
 	int opt2;
 	int p;
@@ -26,7 +24,7 @@ public:
 	cube_cursor();
 };
 
-cube_cursor::cube_cursor() : cx(0), cy(0), theta(60), opt1(64), opt2(32), p(sgl::mesh_wire::CUBE), c() {}
+cube_cursor::cube_cursor() : cx(0), cy(0), opt1(64), opt2(32), p(sgl::mesh_wire::CUBE), c() {}
 
 void draw(sgl::app_handle& ah, void* state) {
 	cube_cursor* cc = (cube_cursor*) state;
@@ -50,28 +48,8 @@ void draw(sgl::app_handle& ah, void* state) {
 		cc->c.translate(sgl::vecd3(0, 0, -0.03), false);
 	}
 	
-	sgl::mesh_wire m;
-	cc->c.apply(cc->o.applied(m));
-	
-	double theta = cc->theta * (3.14159/180);
-	
 	ah.clear_display();
-	
-	sgl::veci2 sp[m.pn];
-	double a = tan(theta/2);
-	double b = 2.0 / ah.win_h;
-	for (int i = 0; i < m.pn; i++) {
-		sp[i].x = (int) ((m.p[i].y / (m.p[i].x * a) + 1) / b);
-		sp[i].y = (int) ((m.p[i].z / (m.p[i].x * a) + 1) / b);
-		
-//		ah.draw_rect(sp[i].x-1, sp[i].y-1, sp[i].x+1, sp[i].y+1);
-	}
-//	ah.clear_display();
-	
-	darray<sgl::veci2> e = m.e;
-	for (int i = 0; i < m.en; i++) {
-		ah.draw_line(sp[e[i].x].x, sp[e[i].x].y, sp[e[i].y].x, sp[e[i].y].y);
-	}
+	ah.render(cc->c, &cc->o, 1);
 	ah.update_display();
 }
 
@@ -118,15 +96,12 @@ void on_key(sgl::event e, sgl::app_handle& ah, void* state) {
 		}
 		sgl::mesh_wire m((sgl::mesh_wire::primtype) cc->p, temp, cc->opt2, 0.5);
 		cc->o.m = m;
-		cc->o.m.translate(sgl::vecd3(4, 0, 0));
 	} else if (cc->p == sgl::mesh_wire::CYLINDER) {
 		sgl::mesh_wire m((sgl::mesh_wire::primtype) cc->p, cc->opt2);
 		cc->o.m = m;
-		cc->o.m.translate(sgl::vecd3(4, 0, 0));
 	} else {
 		sgl::mesh_wire m((sgl::mesh_wire::primtype) cc->p, cc->opt1, cc->opt2, 0.5);
 		cc->o.m = m;
-		cc->o.m.translate(sgl::vecd3(4, 0, 0));
 	}
 }
 
@@ -140,10 +115,8 @@ void drag(sgl::event e, sgl::app_handle& ah, void* state) {
 		cc->cx = e.cx;
 		cc->cy = e.cy;
 		
-//		cc->o.rotate(sgl::vecd3(0, 0, 1), -theta_x);
-//		cc->o.rotate(sgl::vecd3(0, 1, 0),  theta_y);
-			cc->c.rotate(sgl::vecd3(0, 0, 1),  theta_x);
-			cc->c.rotate(sgl::vecd3(0, 1, 0), -theta_y, false);
+		cc->c.rotate(sgl::vecd3(0, 0, 1),  theta_x);
+		cc->c.rotate(sgl::vecd3(0, 1, 0), -theta_y, false);
 	}
 }
 
@@ -151,7 +124,8 @@ int main() {
 	cube_cursor cc;
 	sgl::mesh_wire m(sgl::mesh_wire::CUBE);
 	cc.o.m = m;
-	cc.o.m.translate(sgl::vecd3(4, 0, 0));
+	cc.c.translate(sgl::vecd3(-4, 0, 0));
+	cc.c.clipping = 0.1;
 	
 	sgl::init_data id = {800, 800, 1, (char*) "Voxel", 0xFFFFFF, 0x0};
 	sgl::event_map em;

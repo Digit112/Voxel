@@ -24,7 +24,7 @@ namespace sgl {
 		void rotate(vecd3 axis, double theta, bool is_global);
 		void scale(vecd3 s);
 		
-		mesh_wire& applied(mesh_wire& o);
+		mesh_wire& applied(mesh_wire& o) const;
 	};
 }
 

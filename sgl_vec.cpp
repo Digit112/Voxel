@@ -322,7 +322,7 @@ namespace sgl {
 		return a;
 	}
 	
-	vecd3 quaternion::apply(const vecd3& in) {
+	vecd3 quaternion::apply(const vecd3& in) const {
 		return vhamilton(hamilton(*this, quaternion(0, in.x, in.y, in.z)), !*this);
 	}
 	

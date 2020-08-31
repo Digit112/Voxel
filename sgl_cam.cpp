@@ -1,8 +1,6 @@
 namespace sgl {
-	cam::cam() {
-		p = vecd3(0, 0, 0);
-		r = quaternion(1, 0, 0, 0);
-	}
+	cam::cam() : p(0, 0, 0), r(1, 0, 0, 0), theta(60), clipping(0.0001) {}
+	cam::cam(vecd3 p, quaternion r, double theta, double clipping) : p(p), r(r), theta(theta), clipping(clipping) {}
 	
 	void cam::translate(vecd3 a, bool is_global = true) {
 		if (is_global) {

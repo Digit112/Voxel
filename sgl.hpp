@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "sgl_cam.hpp"
+
 namespace sgl {
 	#include <X11/Xlib.h>
 	#include <X11/Xutil.h>
@@ -77,6 +79,9 @@ namespace sgl {
 		
 		// Copy the buffer to the display
 		void update_display();
+		
+		// Render the following array of objects from the perspective of the passed camera.
+		void render(cam, const object*, int);
 	
 	private:
 		KeySym translate_key(KeySym*, unsigned int min_kc, unsigned int ksprkc, unsigned int keycode, unsigned int state);

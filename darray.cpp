@@ -58,6 +58,11 @@ inline T& darray<T>::operator[](int i) {
 }
 
 template<class T>
+inline T darray<T>::operator[](int i) const {
+	return data[i];
+}
+
+template<class T>
 void darray<T>::initialize(T def) {
 	for (int i = 0; i < size; i++) {
 		data[i] = def;
