@@ -47,6 +47,12 @@ namespace sgl {
 		// Set to true to destroy the window in the next event cycle
 		bool do_destroy;
 		
+		// Whether the window has focus
+		bool is_focused;
+		
+		// Whether the mouse is over the window
+		bool is_hovered;
+		
 		// Keycode states for querying keys
 		unsigned int key_states[198];
 		
@@ -64,6 +70,24 @@ namespace sgl {
 		bool get_key(unsigned int key);
 		
 		bool get_button(unsigned int button);
+		
+		// Get whether the window is focused
+		bool get_focus();
+		
+		// Get whether the mouse is over this window
+		bool get_hover();
+		
+		// Get the mouse location
+		veci2 get_pointer();
+		
+		// Set the mouse location
+		void set_pointer(int x, int y);
+		
+		// Make the pointer invisible
+		void hide_pointer();
+		
+		// Make the pointer visible
+		void show_pointer();
 		
 		// Draw functions
 		void draw_pixel(int x, int y);
@@ -132,13 +156,16 @@ namespace sgl {
 		
 		void (*motion)(event, app_handle&, void*); // Called when the pointer is moved
 		
+		void (*focus_in)(app_handle&, void*);  // Called when the window gains focus
+		void (*focus_out)(app_handle&, void*); // Called when the window loses focus
+		
 		void (*modify)(event, app_handle&, void*); // Called when the window is resized or moved
 		
-		void (*init)(app_handle&, void*);      // Runs once after all initialization steps but immediately prior to the event loop start.
-		void (*draw_init)(app_handle&, void*); // Runs once when the window appears on screen and can be drawn too.
-		void (*draw)(app_handle&, void*);      // Similar to update, but runs at most 60 times a second.
-		void (*update)(app_handle&, void*);    // Runs immediately if no events need handling or alternates with event if events are available on the stack.
-		bool (*exit)(app_handle&, void*);      // Runs when a request to close the window is recieved from the WM, returns whether to close the window.
+		void (*init)(app_handle&, void*);         // Runs once after all initialization steps but immediately prior to the event loop start.
+		void (*draw_init)(app_handle&, void*);    // Runs once when the window appears on screen and can be drawn too.
+		void (*draw)(app_handle&, void*, double); // Similar to update, but runs at most 60 times a second.
+		void (*update)(app_handle&, void*);       // Runs immediately if no events need handling or alternates with event if events are available on the stack.
+		bool (*exit)(app_handle&, void*);         // Runs when a request to close the window is recieved from the WM, returns whether to close the window.
 		
 		event_map();
 	};

@@ -1,6 +1,6 @@
 namespace sgl {
-	cam::cam() : p(0, 0, 0), r(1, 0, 0, 0), theta(60), clipping(0.0001) {}
-	cam::cam(vecd3 p, quaternion r, double theta, double clipping) : p(p), r(r), theta(theta), clipping(clipping) {}
+	cam::cam() : p(0, 0, 0), r(1, 0, 0, 0), theta(60), clip_near(0.01), clip_far(100) {}
+	cam::cam(vecd3 p, quaternion r, double theta, double clip_near, double clip_far) : p(p), r(r), theta(theta), clip_near(clip_near), clip_far(clip_far) {}
 	
 	void cam::translate(vecd3 a, bool is_global = true) {
 		if (is_global) {
@@ -24,6 +24,10 @@ namespace sgl {
 			return;
 		}
 		r = quaternion::hamilton(r, quaternion(axis, theta) );
+	}
+	
+	vecd3 cam::facing() {
+		return r.apply(vecd3(1, 0, 0));
 	}
 	
 	object cam::apply(const object& a) {

@@ -35,6 +35,11 @@ namespace sgl {
 		vecd2 operator/(double a);
 		vecd2 operator-();
 		
+		bool operator==(vecd2 a);
+		
+		// Returns whether this vector is nan. Only returns true if all elements are nan
+		bool is_nan();
+		
 		// Returns a normalized version of this vector
 		vecd2 normalize();
 		vecd2 normalize(double t);
@@ -64,6 +69,8 @@ namespace sgl {
 		veci2 operator/(int a);
 		veci2 operator-();
 		
+		bool operator==(veci2 a);
+		
 		// Returns a normalized version of this vector
 		vecd2 normalize();
 		vecd2 normalize(double t);
@@ -91,6 +98,11 @@ namespace sgl {
 		vecd3 operator/(double a);
 		vecd3 operator-();
 		
+		bool operator==(vecd3 a);
+		
+		// Returns whether this vector is nan. Only returns true if all elements are nan
+		bool is_nan();
+		
 		vecd3 normalize();
 		vecd3 normalize(double t);
 		
@@ -117,6 +129,8 @@ namespace sgl {
 		veci3 operator*(int a);
 		veci3 operator/(int a);
 		veci3 operator-();
+		
+		bool operator==(veci3 a);
 		
 		vecd3 normalize();
 		vecd3 normalize(double t);
@@ -146,6 +160,11 @@ namespace sgl {
 		vecd4 operator/(double a);
 		vecd4 operator-();
 		
+		bool operator==(vecd4 a);
+		
+		// Returns whether this vector is nan. Only returns true if all elements are nan
+		bool is_nan();
+		
 		vecd4 normalize();
 		vecd4 normalize(double t);
 		
@@ -173,6 +192,8 @@ namespace sgl {
 		veci4 operator/(int a);
 		veci4 operator-();
 		
+		bool operator==(veci4 a);
+		
 		vecd4 normalize();
 		vecd4 normalize(double t);
 		
@@ -195,6 +216,7 @@ namespace sgl {
 		vecd3 apply(const vecd3& in) const;
 		
 		static vecd3 rotate(vecd3 in, vecd3 axis_offset, vecd3 axis_dir, double theta);
+		static vecd3 rotate(vecd3 in, vecd3 axis_offset, quaternion r);
 	};
 
 	const vecd3 forward(1, 0, 0);

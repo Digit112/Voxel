@@ -33,6 +33,14 @@ namespace sgl {
 		return vecd2(-x, -y);
 	}
 	
+	bool vecd2::operator==(vecd2 a) {
+		return x == a.x && y == a.y;
+	}
+	
+	bool vecd2::is_nan() {
+		return isnan(x) && isnan(y);
+	}
+	
 	vecd2 vecd2::normalize() {
 		double m = mag();
 		return vecd2(x/m, y/m);
@@ -80,6 +88,10 @@ namespace sgl {
 		return veci2(-x, -y);
 	}
 	
+	bool veci2::operator==(veci2 a) {
+		return x == a.x && y == a.y;
+	}
+	
 	vecd2 veci2::normalize() {
 		double m = mag();
 		return vecd2(x/m, y/m);
@@ -112,7 +124,7 @@ namespace sgl {
 		return vecd3(x-a.x, y-a.y, z-a.z);
 	}
 	vecd3 vecd3::operator*(const vecd3& a) const {
-		return vecd3(x*a.x, y*a.y, z*a.x);
+		return vecd3(x*a.x, y*a.y, z*a.z);
 	}
 	vecd3 vecd3::operator/(const vecd3& a) const {
 		return vecd3(x/a.x, y/a.y, z/a.z);
@@ -125,6 +137,14 @@ namespace sgl {
 	}
 	vecd3 vecd3::operator-() {
 		return vecd3(-x, -y, -z);
+	}
+	
+	bool vecd3::operator==(vecd3 a) {
+		return x == a.x && y == a.y && z == a.z;
+	}
+	
+	bool vecd3::is_nan() {
+		return isnan(x) && isnan(y) && isnan(z);
 	}
 	
 	vecd3 vecd3::normalize() {
@@ -163,7 +183,7 @@ namespace sgl {
 		return veci3(x-a.x, y-a.y, z-a.z);
 	}
 	veci3 veci3::operator*(const veci3& a) const {
-		return veci3(x*a.x, y*a.y, z*a.x);
+		return veci3(x*a.x, y*a.y, z*a.z);
 	}
 	veci3 veci3::operator/(const veci3& a) const {
 		return veci3(x/a.x, y/a.y, z/a.z);
@@ -176,6 +196,10 @@ namespace sgl {
 	}
 	veci3 veci3::operator-() {
 		return veci3(-x, -y, -z);
+	}
+	
+	bool veci3::operator==(veci3 a) {
+		return x == a.x && y == a.y && z == a.z;
 	}
 	
 	vecd3 veci3::normalize() {
@@ -214,7 +238,7 @@ namespace sgl {
 		return vecd4(w-a.w, x-a.x, y-a.y, z-a.z);
 	}
 	vecd4 vecd4::operator*(const vecd4& a) const {
-		return vecd4(w*a.w, x*a.x, y*a.y, z*a.x);
+		return vecd4(w*a.w, x*a.x, y*a.y, z*a.z);
 	}
 	vecd4 vecd4::operator/(const vecd4& a) const {
 		return vecd4(w/a.w, x/a.x, y/a.y, z/a.z);
@@ -227,6 +251,14 @@ namespace sgl {
 	}
 	vecd4 vecd4::operator-() {
 		return vecd4(-w, -x, -y, -z);
+	}
+	
+	bool vecd4::operator==(vecd4 a) {
+		return w == a.w && x == a.x && y == a.y && z == a.z;
+	}
+	
+	bool vecd4::is_nan() {
+		return isnan(w) && isnan(x) && isnan(y) && isnan(z);
 	}
 	
 	vecd4 vecd4::normalize() {
@@ -261,7 +293,7 @@ namespace sgl {
 		return veci4(w-a.w, x-a.x, y-a.y, z-a.z);
 	}
 	veci4 veci4::operator*(const veci4& a) const {
-		return veci4(w*a.w, x*a.x, y*a.y, z*a.x);
+		return veci4(w*a.w, x*a.x, y*a.y, z*a.z);
 	}
 	veci4 veci4::operator/(const veci4& a) const {
 		return veci4(w/a.w, x/a.x, y/a.y, z/a.z);
@@ -274,6 +306,10 @@ namespace sgl {
 	}
 	veci4 veci4::operator-() {
 		return veci4(-w, -x, -y, -z);
+	}
+	
+	bool veci4::operator==(veci4 a) {
+		return w == a.w && x == a.x && y == a.y && z == a.z;
 	}
 	
 	vecd4 veci4::normalize() {
@@ -323,12 +359,18 @@ namespace sgl {
 	}
 	
 	vecd3 quaternion::apply(const vecd3& in) const {
-		return vhamilton(hamilton(*this, quaternion(0, in.x, in.y, in.z)), !*this);
+		return vhamilton(hamilton(*this, quaternion(0, in.x, in.y, in.z)), quaternion(this->w, -this->x, -this->y, -this->z));
 	}
 	
 	vecd3 quaternion::rotate(vecd3 in, vecd3 axis_offset, vecd3 axis_dir, double theta) {
 		in = in - axis_offset;
 		in = quaternion(axis_dir, theta).apply(in);
+		return in + axis_offset;
+	}
+	
+	vecd3 quaternion::rotate(vecd3 in, vecd3 axis_offset, quaternion r) {
+		in = in - axis_offset;
+		in = r.apply(in);
 		return in + axis_offset;
 	}
 }

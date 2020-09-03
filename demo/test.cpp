@@ -22,7 +22,7 @@ public:
 
 cube_cursor::cube_cursor() : cx(0), cy(0), opt1(64), opt2(32), p(sgl::mesh_wire::CUBE), c() {}
 
-void draw(sgl::app_handle& ah, void* state) {
+void draw(sgl::app_handle& ah, void* state, double dt) {
 	cube_cursor* cc = (cube_cursor*) state;
 	
 	if (ah.get_key(25)) {
@@ -94,6 +94,9 @@ void on_key(sgl::event e, sgl::app_handle& ah, void* state) {
 		cc->o.m = m;
 	} else if (cc->p == sgl::mesh_wire::CYLINDER) {
 		sgl::mesh_wire m((sgl::mesh_wire::primtype) cc->p, cc->opt2);
+		cc->o.m = m;
+	} else if (cc->p == sgl::mesh_wire::GRID) {
+		sgl::mesh_wire m((sgl::mesh_wire::primtype) cc->p, cc->opt1/2, cc->opt2);
 		cc->o.m = m;
 	} else {
 		sgl::mesh_wire m((sgl::mesh_wire::primtype) cc->p, cc->opt1, cc->opt2, 0.5);

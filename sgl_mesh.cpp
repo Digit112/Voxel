@@ -51,23 +51,28 @@ namespace sgl {
 			}
 			e[0] = veci2(0, pn-1);
 		}
-		else if (prim == STAR) {
-			opt2 *= 2;
-			pn = opt2;
-			en = opt2;
+		else if (prim == GRID) {
+			pn = opt1*opt2;
+			en = (opt1-1)*opt2 + (opt2-1)*opt1;
 			p = darray<vecd3>(pn);
 			e = darray<veci2>(en);
 			
-			double theta;
-			for (int i = 0; i < pn; i++) {
-				theta = (double) i/pn * 6.28318;
-				p[i] = vecd3(cos(theta), sin(theta), 0);
-				e[i] = veci2(i, i-1);
-				if (i % 2 == 0) {
-					p[i] = p[i]*1.5;
+			double xp;
+			double yp;
+			for (int x = 0; x < opt1; x++) {
+				xp = x / (opt1-1.0) * 2 - 1;
+				for (int y = 0; y < opt2; y++) {
+					yp = y / (opt2-1.0) * 2 - 1;
+					p[x+y*opt1] = vecd3(xp, yp, 0);
+					
+					if (x < opt1 - 1) {
+						e[x + y*(opt1+(opt1-1))] = veci2(x+y*opt1, x+y*opt1+1);
+					}
+					if (y < opt2 - 1) {
+						e[x + y*(opt1+(opt1-1)) + (opt1-1)] = veci2(x+y*opt1, x+(y+1)*opt1);
+					}
 				}
 			}
-			e[0] = veci2(0, pn-1);
 		}
 		else if (prim == ICOSAHEDRON) {
 			pn = 12;
@@ -304,6 +309,9 @@ namespace sgl {
 					}
 				}
 			}
+		}
+		else {
+			printf("Failed to create mesh of type %d and options %d, %d, %f.\n", prim, opt1, opt2, opt3);
 		}
 	}
 	
