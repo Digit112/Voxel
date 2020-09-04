@@ -25,9 +25,7 @@ namespace sgl {
 	}
 	
 	// app_handle constructor
-	app_handle::app_handle() {
-		do_destroy = false;
-		
+	app_handle::app_handle() : do_destroy(false), is_focused(true), is_hovered(false) {
 		for (int i = 0; i < 198; i++) {
 			key_states[i] = false;
 		}
@@ -379,6 +377,9 @@ namespace sgl {
 	void app_handle::render(cam c, const object* o, int o_n) {
 		sgl::mesh_wire m;
 		for (int i = 0; i < o_n; i++) {
+			// Apply color
+			this->set_foreground(o[i].color);
+			
 			// Apply the inverse camera transform to all objects, then apply all object transforms to each verticy belonging to it.
 			// This allows you to treat the camera as having a default position and rotation.
 			c.apply(o[i].applied(m));

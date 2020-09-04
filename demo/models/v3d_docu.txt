@@ -1,0 +1,12 @@
+# Comments
+
+<mesh type>
+
+pn <pn>
+en <en>
+
+v <v.x> <v.y> <v.z>
+...
+
+e <e.x> <e.y>
+...

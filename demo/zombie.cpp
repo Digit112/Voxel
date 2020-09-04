@@ -12,7 +12,14 @@ public:
 	
 	bool paused;
 	
-	bool ball_grabbing;
+	// Pointer to the next space to occupy with a new bullet line. Points to indices 1-32 in the object array gs.o
+	int bl_cur;
+	
+	// Timer used to control the gun firing animation and firing delay
+	double shot_timer;
+	
+	// Used for random number generator
+	unsigned int seed[32];
 	
 	// Used to control character bobbing
 	double step_pt;
@@ -20,7 +27,7 @@ public:
 	game_state();
 };
 
-game_state::game_state() : c(), o(NULL), o_n(0), step_pt(0), paused(false), ball_grabbing(false) {}
+game_state::game_state() : c(), o(NULL), o_n(0), paused(false), bl_cur(1), step_pt(0), shot_timer(1) {}
 
 void init(app_handle& ah, void* state) {
 	ah.hide_pointer();
@@ -29,6 +36,37 @@ void init(app_handle& ah, void* state) {
 // WASD : 25 38 39 40
 void draw(app_handle& ah, void* state, double dt) {
 	game_state* gs = (game_state*) state;
+	
+	// Used for bullet line animations
+	vecd3 p1;
+	vecd3 p2;
+	vecd3 pivot;
+	vecd3 off;
+	quaternion rot;
+	double modifier;
+	
+	// Make the bullet line duller and rotate the bullet line pieces
+	for (int i = 0; i < 32; i++) {
+		if (gs->o[i].color < 0xFFFFFF) {
+			gs->o[i].color += 0x000404;
+			
+			srand(gs->seed[i]);
+			
+			for (int j = 0; j < gs->o[i].m.en; j++) {
+				modifier = pow(gs->shot_timer, 1.5) / 20;
+				
+				p1 = gs->o[i].m.p[gs->o[i].m.e[j].x];
+				p2 = gs->o[i].m.p[gs->o[i].m.e[j].y];
+				pivot = vecd3(rand() % 1000 / 1000.0, rand() % 1000 / 1000.0, rand() % 1000 / 1000.0) + (p1+p2)/2;
+				
+				off = vecd3((rand() % 200 - 100) / 10000.0, (rand() % 200 - 100) / 10000.0, (rand() % 200 - 100) / 10000.0);
+				
+				rot = quaternion(vecd3(rand() % 1000, rand() % 1000, rand() % 1000).normalize(), 0.004 * modifier);
+				gs->o[i].m.p[gs->o[i].m.e[j].x] = quaternion::rotate(p1, pivot, rot) + off * modifier;
+				gs->o[i].m.p[gs->o[i].m.e[j].y] = quaternion::rotate(p2, pivot, rot) + off * modifier;
+			}
+		}
+	}
 	
 	if (!gs->paused) {
 		if (ah.get_hover()) {
@@ -45,23 +83,25 @@ void draw(app_handle& ah, void* state, double dt) {
 		}
 	
 		double bob_speed = 20;
-		double move_speed = 0.2;
+		double move_speed = 10 * dt;
 		if (ah.get_key(50)) {
-			move_speed = 0.4;
+			move_speed *= 2;
 			bob_speed = 40;
 		}
 		
 		box_collider bx;
 		bool space_free = true;
 		vecd3 hit;
+		
+		vecd3 new_pos;
 	
 		bool did_move = false;
 	
 		if (ah.get_key(25)) {
 			did_move = true;
-			vecd3 f = gs->c.facing();
+			vecd3 f = gs->c.forward();
 			f = vecd3(f.x, f.y, 0).normalize(move_speed*1.5);
-			for (int i = 2; i < gs->o_n; i++) {
+			for (int i = 35; i < gs->o_n; i++) {
 				hit = bx.raycast(gs->o[i].p, gs->o[i].r, gs->o[i].s, gs->c.p - vecd3(0, 0, 3.5), f);
 				if (hit.is_nan() || (hit - (gs->c.p - vecd3(0, 0, 3.5))).mag() > move_speed*3) {
 					continue;
@@ -70,14 +110,17 @@ void draw(app_handle& ah, void* state, double dt) {
 				break;
 			}
 			if (space_free) {
-				gs->c.translate(f);
+				new_pos = gs->c.p + f;
+				if (new_pos.x < 96 && new_pos.x > -96 && new_pos.y < 96 && new_pos.y > -96) {
+					gs->c.p = new_pos;
+				}
 			}
 		}
 		else if (ah.get_key(39)) {
 			did_move = true;
-			vecd3 f = gs->c.facing();
+			vecd3 f = gs->c.forward();
 			f = -vecd3(f.x, f.y, 0).normalize(move_speed);
-			for (int i = 2; i < gs->o_n; i++) {
+			for (int i = 35; i < gs->o_n; i++) {
 				hit = bx.raycast(gs->o[i].p, gs->o[i].r, gs->o[i].s, gs->c.p - vecd3(0, 0, 3.5), f);
 				if (hit.is_nan() || (hit - (gs->c.p - vecd3(0, 0, 3.5))).mag() > move_speed*2) {
 					continue;
@@ -86,14 +129,17 @@ void draw(app_handle& ah, void* state, double dt) {
 				break;
 			}
 			if (space_free) {
-				gs->c.translate(f);
+				new_pos = gs->c.p + f;
+				if (new_pos.x < 96 && new_pos.x > -96 && new_pos.y < 96 && new_pos.y > -96) {
+					gs->c.p = new_pos;
+				}
 			}
 		}
 		if (ah.get_key(38)) {
 			did_move = true;
-			vecd3 f = gs->c.facing();
+			vecd3 f = gs->c.forward();
 			f = -vecd3(-f.y, f.x, 0).normalize(move_speed);
-			for (int i = 2; i < gs->o_n; i++) {
+			for (int i = 35; i < gs->o_n; i++) {
 				hit = bx.raycast(gs->o[i].p, gs->o[i].r, gs->o[i].s, gs->c.p - vecd3(0, 0, 3.5), f);
 				if (hit.is_nan() || (hit - (gs->c.p - vecd3(0, 0, 3.5))).mag() > move_speed*2) {
 					continue;
@@ -102,14 +148,17 @@ void draw(app_handle& ah, void* state, double dt) {
 				break;
 			}
 			if (space_free) {
-				gs->c.translate(f);
+				new_pos = gs->c.p + f;
+				if (new_pos.x < 96 && new_pos.x > -96 && new_pos.y < 96 && new_pos.y > -96) {
+					gs->c.p = new_pos;
+				}
 			}
 		}
 		else if (ah.get_key(40)) {
 			did_move = true;
-			vecd3 f = gs->c.facing();
+			vecd3 f = gs->c.forward();
 			f =  vecd3(-f.y, f.x, 0).normalize(move_speed);
-			for (int i = 2; i < gs->o_n; i++) {
+			for (int i = 35; i < gs->o_n; i++) {
 				hit = bx.raycast(gs->o[i].p, gs->o[i].r, gs->o[i].s, gs->c.p - vecd3(0, 0, 3.5), f);
 				if (hit.is_nan() || (hit - (gs->c.p - vecd3(0, 0, 3.5))).mag() > move_speed*2) {
 					continue;
@@ -118,17 +167,37 @@ void draw(app_handle& ah, void* state, double dt) {
 				break;
 			}
 			if (space_free) {
-				gs->c.translate(f);
+				new_pos = gs->c.p + f;
+				if (new_pos.x < 96 && new_pos.x > -96 && new_pos.y < 96 && new_pos.y > -96) {
+					gs->c.p = new_pos;
+				}
 			}
 		}
 	
 		if (did_move) {
+			// Character bobbing
 			gs->step_pt += bob_speed * dt;
 			gs->c.translate(vecd3(0, 0, sin(gs->step_pt) / 40));
 			if (gs->step_pt > 6.283) {
 				gs->step_pt = 0;
 				gs->c.p = vecd3(gs->c.p.x, gs->c.p.y, 4);
 			}
+		}
+	
+		// Move objects to character
+		gs->o[33].r = gs->c.r;
+		gs->o[33].p = gs->c.p + gs->c.forward()*1.3 - gs->c.up()*0.4 + gs->c.right()*0.5;
+		gs->o[34].r = gs->c.r;
+		gs->o[34].p = gs->c.p + gs->c.forward()*1.3 - gs->c.up()*0.4 + gs->c.right()*0.5;
+		
+		gs->shot_timer += dt * 8;
+		// Increase shot_timer
+		if (gs->shot_timer < 1) {
+			// Rotate the gun based on the shot timer
+			gs->o[33].rotate(quaternion(gs->c.right(), -sin(gs->shot_timer * 3.14159) * 0.2));
+			
+			gs->o[34].rotate(quaternion(gs->c.right(), -sin(gs->shot_timer * 3.14159) * 0.2));
+			gs->o[34].translate(vecd3(-1, 0, 0) * sin(gs->shot_timer * 3.14159) * 0.3, false);
 		}
 	}
 	
@@ -154,48 +223,177 @@ void key_press(event e, app_handle& ah, void* state) {
 }
 
 void click(event e, app_handle& ah, void* state) {
-	if (e.code == 1) {
-		game_state* gs = (game_state*) state;
+	game_state* gs = (game_state*) state;
+	
+	if (e.code == 1 && gs->shot_timer >= 1 && !gs->paused) {
+		// Reset the shot timer
+		gs->shot_timer = 0;
 		
-		vecd3 hit;
-		box_collider bx;
-		hit = bx.raycast(gs->o[2].p, gs->o[2].r, gs->o[2].s, gs->c.p, gs->c.facing());
-		
-		gs->o[1].m.p[0] = gs->c.p;
-		gs->o[1].m.p[1] = gs->c.facing() * 50 + gs->c.p;
-		if (!hit.is_nan()) {
-			gs->o[1].m.p[1] = hit;
+		// Color the bullet line
+		gs->o[gs->bl_cur].color = 0xFF0303;
+		int bl_cur = gs->bl_cur;
+		gs->bl_cur = gs->bl_cur + 1;
+		if (gs->bl_cur == 32) {
+			gs->bl_cur = 0;
 		}
+		
+		vecd3 floor_hit;
+		vecd3 hit;
+		vecd3 hit_temp;
+		box_collider bx;
+		
+		hit = bx.raycast(gs->o[35].p, gs->o[35].r, gs->o[35].s, gs->o[34].p, gs->c.forward());
+		for (int i = 36; i < gs->o_n; i++) {
+			hit_temp = bx.raycast(gs->o[i].p, gs->o[i].r, gs->o[i].s, gs->o[34].p, gs->c.forward());
+			if (!hit_temp.is_nan()) {
+				hit = (hit - gs->o[34].p).sqr_mag() < (hit_temp - gs->o[34].p).sqr_mag() ? hit : hit_temp;
+			}
+		}
+		
+		bx.zp = 0;
+		floor_hit = bx.raycast(gs->o[32].p, gs->o[32].r, gs->o[32].s, gs->o[34].p, gs->c.forward());
+		if (!floor_hit.is_nan()) {
+			hit = (hit - gs->o[34].p).sqr_mag() < (floor_hit - gs->o[34].p).sqr_mag() ? hit : floor_hit;
+		}
+		
+		if (hit.is_nan()) {
+			hit = gs->c.forward() * 96 + gs->o[34].p;
+		}
+		
+		gs->seed[bl_cur] = rand();
+		
+		// Create bullet line
+		vecd3 hit_vec = hit - gs->o[34].p;
+		double hit_len = hit_vec.mag();
+		double line_len = 2;
+		int num_lines = ceil(hit_len / line_len);
+		gs->o[bl_cur].m.pn = num_lines * 2;
+		gs->o[bl_cur].m.en = num_lines;
+		gs->o[bl_cur].m.p = darray<vecd3>(num_lines * 2);
+		gs->o[bl_cur].m.e = darray<veci2>(num_lines);
+		
+		vecd3 end;
+		gs->o[bl_cur].m.p[0] = gs->o[34].p;
+		for (int i = 0; i < num_lines-1; i++) {
+			end = gs->o[34].p + hit_vec * ((double) (i+1)/num_lines);
+			gs->o[bl_cur].m.p[i*2+1] = end;
+			gs->o[bl_cur].m.p[i*2+2] = end;
+			gs->o[bl_cur].m.e[i] = veci2(i*2, i*2+1);
+		}
+		gs->o[bl_cur].m.p[num_lines*2-1] = hit;
+		gs->o[bl_cur].m.e[num_lines-1] = veci2(num_lines*2-2, num_lines*2-1);
 	}
 }
 
+// o_n = 34
+// o[0]          = floor
+// o[1] - o[32]  = bullet lines
+// o[33]         = pistol
+// o[34]         = pistol_slide
+// o[35] - o[40] = environment
 int main() {
 	game_state gs;
-	gs.o_n = 3;
-	gs.o = new object[3];
 	
-	gs.o[0].m = mesh_wire(mesh_wire::GRID, 33, 33);
-	gs.o[2].m = mesh_wire(mesh_wire::CUBE, 12, 12);
-	
+	// Position camera
 	gs.c.translate(vecd3(0, 0, 4));
-	gs.o[0].scale(vecd3(99, 99, 0));
+	
+	// Create space for objects
+	gs.o_n = 50;
+	gs.o = new object[gs.o_n];
+	
+	// Create floor
+	gs.o[32].m = mesh_wire(mesh_wire::GRID, 33, 33);
+	gs.o[32].scale(vecd3(96, 96, 0));
+	
+	mesh_wire pistol((char*) "./models/pistol.v3d");
+	gs.o[33].m = pistol;
+	gs.o[33].scale(vecd3(0.1, 0.1, 0.1));
+	
+	mesh_wire pistol_slide((char*) "./models/pistol_slide.v3d");
+	gs.o[34].m = pistol_slide;
+	gs.o[34].scale(vecd3(0.1, 0.1, 0.1));
+	
+	// Create environment
+	gs.o[35].m = mesh_wire(mesh_wire::CUBE);
+	gs.o[35].translate(vecd3(5, -9, 2));
+	gs.o[35].scale(vecd3(5, 2, 2));
+	
+	gs.o[36].m = mesh_wire(mesh_wire::CUBE);
+	gs.o[36].translate(vecd3(15, 21, 3));
+	gs.o[36].rotate(vecd3(0, 0, 1), -3.14159/4);
+	gs.o[36].scale(vecd3(4, 0.5, 3));
+	
+	gs.o[37].m = mesh_wire(mesh_wire::CUBE);
+	gs.o[37].translate(vecd3(-26, 19, 1));
+	gs.o[37].scale(vecd3(1, 2, 1));
+	
+	gs.o[38].m = mesh_wire(mesh_wire::CUBE);
+	gs.o[38].translate(vecd3(-25, 25, 1));
+	gs.o[38].rotate(vecd3(0, 0, 1), -3.14159/8);
+	gs.o[38].scale(vecd3(1, 2, 1));
+	
+	gs.o[39].m = mesh_wire(mesh_wire::CUBE);
+	gs.o[39].translate(vecd3(-21, 30, 1));
+	gs.o[39].rotate(vecd3(0, 0, 1), -3.14159/4);
+	gs.o[39].scale(vecd3(1, 2, 1));
+	
+	gs.o[40].m = mesh_wire(mesh_wire::CUBE);
+	gs.o[40].translate(vecd3(47, 3, 4));
+	gs.o[40].scale(vecd3(4, 4, 4));
+	
+	gs.o[41].m = mesh_wire(mesh_wire::CUBE);
+	gs.o[41].translate(vecd3(-64, 52, 4));
+	gs.o[41].scale(vecd3(4, 4, 4));
+	
+	gs.o[42].m = mesh_wire(mesh_wire::CUBE);
+	gs.o[42].translate(vecd3(9, -45, 1));
+	gs.o[42].scale(vecd3(8, 0.5, 1));
+	
+	gs.o[43].m = mesh_wire(mesh_wire::CUBE);
+	gs.o[43].translate(vecd3(69, 48, 1));
+	gs.o[43].rotate(vecd3(0, 0, 1), -3.14159/4);
+	gs.o[43].scale(vecd3(8, 0.5, 1));
+	
+	gs.o[44].m = mesh_wire(mesh_wire::CUBE);
+	gs.o[44].translate(vecd3(-55, -55, 8));
+	gs.o[44].scale(vecd3(2, 2, 8));
+	
+	gs.o[45].m = mesh_wire(mesh_wire::CUBE);
+	gs.o[45].translate(vecd3(-2, -69, 3));
+	gs.o[45].scale(vecd3(1, 5, 3));
+	
+	gs.o[46].m = mesh_wire(mesh_wire::CUBE);
+	gs.o[46].translate(vecd3(55, -62, 1));
+	gs.o[46].scale(vecd3(2, 1, 1));
+	
+	gs.o[47].m = mesh_wire(mesh_wire::CUBE);
+	gs.o[47].translate(vecd3(39, 52, 1));
+	
+	gs.o[48].m = mesh_wire(mesh_wire::CUBE);
+	gs.o[48].translate(vecd3(-72, -17, 3));
+	gs.o[48].rotate(vecd3(0, 0, 1), 3.14159/8);
+	gs.o[48].scale(vecd3(1, 2, 3));
+	
+	gs.o[49].m = mesh_wire(mesh_wire::CUBE);
+	gs.o[49].translate(vecd3(-20, -7, 3));
+	gs.o[49].scale(vecd3(1, 2, 3));
+	
+	// Create bullet lines
+	for (int i = 0; i < 32; i++) {
+		gs.o[i].m.p = darray<vecd3>(2);
+		gs.o[i].m.p[0] = vecd3(0, 0, 0);
+		gs.o[i].m.p[1] = vecd3(0, 0, 0);
+		
+		gs.o[i].m.e = darray<veci2>(1);
+		gs.o[i].m.e[0] = veci2(0, 1);
+		gs.o[i].m.pn = 2;
+		gs.o[i].m.en = 1;
+		
+		gs.o[i].color = 0xFF0000;
+	}
+	
+	// Create window and start mainloop
 	init_data id = {800, 800, 1, (char*) "Voxel", 0xFFFFFF, 0x0};
-	
-//	gs.o[1].translate(vecd3(0, 0, 1));
-	
-	gs.o[2].translate(vecd3(2, 2, 3));
-	gs.o[2].rotate(vecd3(0, 0, 1), 3.14159/4);
-	gs.o[2].scale(vecd3(2, 1, 3));
-	
-	darray<vecd3> p(2);
-	p[0] = vecd3(0, 0, 0);
-	p[1] = vecd3(0, 0, 0);
-	darray<veci2> e(1);
-	e[0] = veci2(0, 1);
-	gs.o[1].m.pn = 2;
-	gs.o[1].m.en = 1;
-	gs.o[1].m.p  = p;
-	gs.o[1].m.e  = e;
 	
 	event_map em;
 	em.init = init;

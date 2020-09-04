@@ -1,8 +1,11 @@
 #ifndef sgl_mesh
 #define sgl_mesh
 
+#include "string.h"
+
 #include "sgl_vec.hpp"
 #include "darray.hpp"
+#include "util.cpp"
 
 namespace sgl {
 	class mesh_wire;
@@ -20,6 +23,9 @@ namespace sgl {
 		mesh_wire();
 		mesh_wire(int pn, int en);
 		mesh_wire(darray<vecd3> p, int pn, darray<veci2> e, int en);
+		
+		// From file
+		mesh_wire(char*);
 		
 		void translate(vecd3 t);
 		void rotate(quaternion r);

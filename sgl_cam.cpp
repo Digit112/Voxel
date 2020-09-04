@@ -26,8 +26,14 @@ namespace sgl {
 		r = quaternion::hamilton(r, quaternion(axis, theta) );
 	}
 	
-	vecd3 cam::facing() {
+	vecd3 cam::forward() {
 		return r.apply(vecd3(1, 0, 0));
+	}
+	vecd3 cam::right() {
+		return r.apply(vecd3(0, 1, 0));
+	}
+	vecd3 cam::up() {
+		return r.apply(vecd3(0, 0, 1));
 	}
 	
 	object cam::apply(const object& a) {

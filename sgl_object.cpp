@@ -1,12 +1,12 @@
 namespace sgl {
-	object::object() {
-		p = vecd3(0, 0, 0);
-		r = quaternion(1, 0, 0, 0);
-		s = vecd3(1, 1, 1);
-	}
+	object::object() : p(0, 0, 0), r(1, 0, 0, 0), s(1, 1, 1), color(0) {}
 	
-	void object::translate(vecd3 a) {
-		p = p + a;
+	void object::translate(vecd3 a, bool is_global = true) {
+		if (is_global) {
+			p = p + a;
+			return;
+		}
+		p = p + r.apply(a);
 	}
 	
 	void object::rotate(quaternion a, bool is_global = true) {

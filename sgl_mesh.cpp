@@ -7,6 +7,84 @@ namespace sgl {
 	}
 	mesh_wire::mesh_wire(darray<vecd3> p, int pn, darray<veci2> e, int en) : p(p), pn(pn), e(e), en(en) {}
 	
+	mesh_wire::mesh_wire(char* fn) {
+		FILE* fp;
+		
+		int a;
+		int b;
+		
+		pn = 0;
+		en = 0;
+		
+		int pc = 0;
+		int ec = 0;
+		
+		fp = fopen(fn, "r");
+		if (fp == NULL) {
+			printf("Could not find .v3d file: \"%s\"\n", fn);
+			return;
+		}
+		
+		char str[128];
+		char substr[128];
+		
+		bool pn_known = false;
+		bool en_known = false;
+		
+		while(fgets(str, 128, fp) != NULL) {
+			if (str[0] == '\n' || str[0] == '\t' || str[0] == ' ' || str[0] == '#') {
+				continue;
+			}
+			
+			if (str[0] == 'p' && str[1] == 'n') {
+				next(str + 2, 0, substr);
+				pn = atoi(substr);
+				p = darray<vecd3>(pn);
+				pn_known = true;
+			}
+			else if (str[0] == 'v') {
+				if (!pn_known) {
+					printf("Attempted to declare vertex prior to vertex count in v3d file \"%s\"\n", fn);
+					return;
+				}
+				
+				a = next(str + 1, 0, substr);
+				p[pc].x = atof(substr);
+				
+				a = next(str + 1, a+1, substr);
+				p[pc].y = atof(substr);
+				
+				next(str + 1, a+1, substr);
+				p[pc].z = atof(substr);
+				
+				pc++;
+			}
+			
+			if (str[0] == 'e' && str[1] == 'n') {
+				next(str + 2, 0, substr);
+				en = atoi(substr);
+				e = darray<veci2>(en);
+				en_known = true;
+			}
+			else if (str[0] == 'e') {
+				if (!en_known) {
+					printf("Attempted to declare edge prior to edge count in v3d file \"%s\"\n", fn);
+					return;
+				}
+				
+				a = next(str + 1, 0, substr);
+				e[ec].x = atof(substr);
+				
+				next(str + 1, a+1, substr);
+				e[ec].y = atof(substr);
+				
+				ec++;
+			}
+		}
+		
+		fclose(fp);
+	}
+	
 	mesh_wire::mesh_wire(primtype prim, int opt1 = 0, int opt2 = 0, double opt3 = 0.0) {
 		if (prim == CUBE) {
 			pn = 8;

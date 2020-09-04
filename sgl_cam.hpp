@@ -25,7 +25,9 @@ namespace sgl {
 		void rotate(vecd3 axis, double theta, bool is_global);
 		
 		// Get this camera's facing direction
-		vecd3 facing();
+		vecd3 forward();
+		vecd3 right();
+		vecd3 up();
 		
 		// Apply the inverse camera transform to the given object and returns the result of that tranformation.
 		object apply(const object&);
