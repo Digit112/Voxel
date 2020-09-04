@@ -1,5 +1,5 @@
 namespace sgl {
-	object::object() : p(0, 0, 0), r(1, 0, 0, 0), s(1, 1, 1), color(0) {}
+	object::object() : p(0, 0, 0), r(1, 0, 0, 0), s(1, 1, 1), color(0), is_hidden(false) {}
 	
 	void object::translate(vecd3 a, bool is_global = true) {
 		if (is_global) {
@@ -27,6 +27,24 @@ namespace sgl {
 	
 	void object::scale(vecd3 a) {
 		s = s * a;
+	}
+	
+	vecd3 object::forward() {
+		return r.apply(vecd3(1, 0, 0));
+	}
+	vecd3 object::right() {
+		return r.apply(vecd3(0, 1, 0));
+	}
+	vecd3 object::up() {
+		return r.apply(vecd3(0, 0, 1));
+	}
+	
+	void object::hide() {
+		is_hidden = true;
+	}
+	
+	void object::show() {
+		is_hidden = false;
 	}
 	
 	mesh_wire& object::applied(mesh_wire& o) const {

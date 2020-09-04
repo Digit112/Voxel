@@ -19,12 +19,21 @@ namespace sgl {
 		
 		unsigned int color;
 		
+		bool is_hidden;
+		
 		object();
 		
 		void translate(vecd3 t, bool is_global);
 		void rotate(quaternion r, bool is_global);
 		void rotate(vecd3 axis, double theta, bool is_global);
 		void scale(vecd3 s);
+		
+		vecd3 forward();
+		vecd3 right();
+		vecd3 up();
+		
+		void hide();
+		void show();
 		
 		mesh_wire& applied(mesh_wire& o) const;
 	};
