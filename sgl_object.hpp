@@ -26,6 +26,7 @@ namespace sgl {
 		void translate(vecd3 t, bool is_global);
 		void rotate(quaternion r, bool is_global);
 		void rotate(vecd3 axis, double theta, bool is_global);
+		void rotate(vecd3 offset, vecd3 axis, double theta, bool is_global);
 		void scale(vecd3 s);
 		
 		vecd3 forward();

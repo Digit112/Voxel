@@ -23,10 +23,10 @@ namespace sgl {
 	vecd2 vecd2::operator/(const vecd2& a) const {
 		return vecd2(x/a.x, y/a.y);
 	}
-	vecd2 vecd2::operator*(double a) {
+	vecd2 vecd2::operator*(double a) const {
 		return vecd2(x*a, y*a);
 	}
-	vecd2 vecd2::operator/(double a) {
+	vecd2 vecd2::operator/(double a) const {
 		return vecd2(x/a, y/a);
 	}
 	vecd2 vecd2::operator-() {
@@ -78,10 +78,10 @@ namespace sgl {
 	veci2 veci2::operator/(const veci2& a) const {
 		return veci2(x/a.x, y/a.y);
 	}
-	veci2 veci2::operator*(int a) {
+	veci2 veci2::operator*(int a) const {
 		return veci2(x*a, y*a);
 	}
-	veci2 veci2::operator/(int a) {
+	veci2 veci2::operator/(int a) const {
 		return veci2(x/a, y/a);
 	}
 	veci2 veci2::operator-() {
@@ -129,10 +129,10 @@ namespace sgl {
 	vecd3 vecd3::operator/(const vecd3& a) const {
 		return vecd3(x/a.x, y/a.y, z/a.z);
 	}
-	vecd3 vecd3::operator*(double a) {
+	vecd3 vecd3::operator*(double a) const {
 		return vecd3(x*a, y*a, z*a);
 	}
-	vecd3 vecd3::operator/(double a) {
+	vecd3 vecd3::operator/(double a) const {
 		return vecd3(x/a, y/a, z/a);
 	}
 	vecd3 vecd3::operator-() {
@@ -188,10 +188,10 @@ namespace sgl {
 	veci3 veci3::operator/(const veci3& a) const {
 		return veci3(x/a.x, y/a.y, z/a.z);
 	}
-	veci3 veci3::operator*(int a) {
+	veci3 veci3::operator*(int a) const {
 		return veci3(x*a, y*a, z*a);
 	}
-	veci3 veci3::operator/(int a) {
+	veci3 veci3::operator/(int a) const {
 		return veci3(x/a, y/a, z/a);
 	}
 	veci3 veci3::operator-() {
@@ -243,10 +243,10 @@ namespace sgl {
 	vecd4 vecd4::operator/(const vecd4& a) const {
 		return vecd4(w/a.w, x/a.x, y/a.y, z/a.z);
 	}
-	vecd4 vecd4::operator*(double a) {
+	vecd4 vecd4::operator*(double a) const {
 		return vecd4(w*a, x*a, y*a, z*a);
 	}
-	vecd4 vecd4::operator/(double a) {
+	vecd4 vecd4::operator/(double a) const {
 		return vecd4(w/a, x/a, y/a, z/a);
 	}
 	vecd4 vecd4::operator-() {
@@ -298,10 +298,10 @@ namespace sgl {
 	veci4 veci4::operator/(const veci4& a) const {
 		return veci4(w/a.w, x/a.x, y/a.y, z/a.z);
 	}
-	veci4 veci4::operator*(int a) {
+	veci4 veci4::operator*(int a) const {
 		return veci4(w*a, x*a, y*a, z*a);
 	}
-	veci4 veci4::operator/(int a) {
+	veci4 veci4::operator/(int a) const {
 		return veci4(w/a, x/a, y/a, z/a);
 	}
 	veci4 veci4::operator-() {
@@ -338,8 +338,44 @@ namespace sgl {
 		z = axis.z * s;
 	}
 	
+	quaternion quaternion::operator+(const quaternion& a) const {
+		return quaternion(w+a.w, x+a.x, y+a.y, z+a.z);
+	}
+	quaternion quaternion::operator-(const quaternion& a) const {
+		return quaternion(w-a.w, x-a.x, y-a.y, z-a.z);
+	}
+	quaternion quaternion::operator*(const quaternion& a) const {
+		return quaternion(w*a.w, x*a.x, y*a.y, z*a.z);
+	}
+	quaternion quaternion::operator/(const quaternion& a) const {
+		return quaternion(w/a.w, x/a.x, y/a.y, z/a.z);
+	}
+	quaternion quaternion::operator*(double a) const {
+		return quaternion(w*a, x*a, y*a, z*a);
+	}
+	quaternion quaternion::operator/(double a) const {
+		return quaternion(w/a, x/a, y/a, z/a);
+	}
+	quaternion quaternion::operator-() const {
+		return quaternion(-w, -x, -y, -z);
+	}
+	
+	quaternion quaternion::operator=(vecd4 a) const {
+		return quaternion(a.w, a.x, a.y, a.z);
+	}
+	
 	quaternion quaternion::operator!() const {
 		return quaternion(w, -x, -y, -z);
+	}
+	
+	quaternion quaternion::normalize() {
+		double m = mag();
+		return quaternion(w/m, x/m, y/m, z/m);
+	}
+	
+	quaternion quaternion::normalize(double t) {
+		double m = mag() / t;
+		return quaternion(w/m, x/m, y/m, z/m);
 	}
 	
 	quaternion quaternion::hamilton(const quaternion& a, const quaternion& b) {
@@ -372,6 +408,32 @@ namespace sgl {
 		in = in - axis_offset;
 		in = r.apply(in);
 		return in + axis_offset;
+	}
+	
+	quaternion quaternion::slerp(const quaternion& a, const quaternion& b, double t) {
+		double dot = quaternion::dot(a, b);
+		if (dot < 0) {
+			a = -a;
+			dot = -dot;
+		}
+		
+		const double DOT_THRESHOLD = 0.995;
+		if (dot > DOT_THRESHOLD) {
+			quaternion out = a + (b-a)*t;
+			out = out.normalize();
+			return out;
+		}
+		
+		double theta_0 = acos(dot);
+		double theta = theta_0 * t;
+		
+		double sin_theta = sin(theta);
+		double sin_theta_0 = sin(theta_0);
+		
+		double s0 = cos(theta) - dot * sin_theta / sin_theta_0;
+		double s1 = sin_theta / sin_theta_0;
+		
+		return (a*s0) + (b*s1);
 	}
 }
 

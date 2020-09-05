@@ -25,6 +25,16 @@ namespace sgl {
 		r = quaternion::hamilton(r, quaternion(axis, theta) );
 	}
 	
+	void object::rotate(vecd3 offset, vecd3 axis, double theta, bool is_global = true) {
+		if (is_global) {
+			r = quaternion::hamilton(quaternion(axis, theta), r);
+			p = quaternion::rotate(p, offset, axis, theta);
+			return;
+		}
+		r = quaternion::hamilton(r, quaternion(axis, theta) );
+		p = quaternion::rotate(p, offset, r.apply(axis), theta);
+	}
+	
 	void object::scale(vecd3 a) {
 		s = s * a;
 	}

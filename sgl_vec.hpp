@@ -31,8 +31,8 @@ namespace sgl {
 		vecd2 operator-(const vecd2& a) const;
 		vecd2 operator*(const vecd2& a) const;
 		vecd2 operator/(const vecd2& a) const;
-		vecd2 operator*(double a);
-		vecd2 operator/(double a);
+		vecd2 operator*(double a) const;
+		vecd2 operator/(double a) const;
 		vecd2 operator-();
 		
 		bool operator==(vecd2 a);
@@ -65,8 +65,8 @@ namespace sgl {
 		veci2 operator-(const veci2& a) const;
 		veci2 operator*(const veci2& a) const;
 		veci2 operator/(const veci2& a) const;
-		veci2 operator*(int a);
-		veci2 operator/(int a);
+		veci2 operator*(int a) const;
+		veci2 operator/(int a) const;
 		veci2 operator-();
 		
 		bool operator==(veci2 a);
@@ -94,8 +94,8 @@ namespace sgl {
 		vecd3 operator-(const vecd3& a) const;
 		vecd3 operator*(const vecd3& a) const;
 		vecd3 operator/(const vecd3& a) const;
-		vecd3 operator*(double a);
-		vecd3 operator/(double a);
+		vecd3 operator*(double a) const;
+		vecd3 operator/(double a) const;
 		vecd3 operator-();
 		
 		bool operator==(vecd3 a);
@@ -126,8 +126,8 @@ namespace sgl {
 		veci3 operator-(const veci3& a) const;
 		veci3 operator*(const veci3& a) const;
 		veci3 operator/(const veci3& a) const;
-		veci3 operator*(int a);
-		veci3 operator/(int a);
+		veci3 operator*(int a) const;
+		veci3 operator/(int a) const;
 		veci3 operator-();
 		
 		bool operator==(veci3 a);
@@ -156,8 +156,8 @@ namespace sgl {
 		vecd4 operator-(const vecd4& a) const;
 		vecd4 operator*(const vecd4& a) const;
 		vecd4 operator/(const vecd4& a) const;
-		vecd4 operator*(double a);
-		vecd4 operator/(double a);
+		vecd4 operator*(double a) const;
+		vecd4 operator/(double a) const;
 		vecd4 operator-();
 		
 		bool operator==(vecd4 a);
@@ -188,8 +188,8 @@ namespace sgl {
 		veci4 operator-(const veci4& a) const;
 		veci4 operator*(const veci4& a) const;
 		veci4 operator/(const veci4& a) const;
-		veci4 operator*(int a);
-		veci4 operator/(int a);
+		veci4 operator*(int a) const;
+		veci4 operator/(int a) const;
 		veci4 operator-();
 		
 		bool operator==(veci4 a);
@@ -206,7 +206,23 @@ namespace sgl {
 		quaternion(double w, double x, double y, double z);
 		quaternion(vecd3 axis, double theta);
 		
+		quaternion operator+(const quaternion& a) const;
+		quaternion operator-(const quaternion& a) const;
+		quaternion operator*(const quaternion& a) const;
+		quaternion operator/(const quaternion& a) const;
+		quaternion operator*(double a) const;
+		quaternion operator/(double a) const;
+		quaternion operator-() const;
+		
+		quaternion operator=(vecd4) const;
+		
+		bool operator==(veci4 a);
+		
 		quaternion operator!() const;
+		
+		// Normalize identical to the vecd4 normalize. This version exists so that quaternion::normalize() will return a quaternion.
+		quaternion normalize();
+		quaternion normalize(double t);
 		
 		static quaternion hamilton(const quaternion& a, const quaternion& b);
 		static vecd3 vhamilton(const quaternion& a, const quaternion& b);
@@ -217,6 +233,8 @@ namespace sgl {
 		
 		static vecd3 rotate(vecd3 in, vecd3 axis_offset, vecd3 axis_dir, double theta);
 		static vecd3 rotate(vecd3 in, vecd3 axis_offset, quaternion r);
+		
+		static quaternion slerp(const quaternion& a, const quaternion& b, double t); 
 	};
 
 	const vecd3 forward(1, 0, 0);
