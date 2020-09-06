@@ -27,8 +27,11 @@ public:
 	// Time since death of each zombie. Animated with the same code as bullet lines, except with a preceeding vertex split.
 	double zombie_death_timer[20];
 	
-	// Controls zombie animations
+	// Controls zombie animation
 	double z_step_pt[20];
+	
+	// Controls randomness in zombie animation
+	unsigned int z_seed[20];
 	
 	// Timer used to control the gun firing animation and firing delay
 	double shot_timer;
@@ -76,6 +79,15 @@ void draw(app_handle& ah, void* state, double dt) {
 				printf("Error: attempted to spawn zombie but no space was available.\n");
 			}
 			else {
+				gs->o[z_cur  ].m = mesh_wire((char*) "./models/z_head.v3d");
+				gs->o[z_cur+1].m = mesh_wire((char*) "./models/z_body.v3d");
+				gs->o[z_cur+2].m = mesh_wire((char*) "./models/z_arm.v3d");
+				gs->o[z_cur+3].m = mesh_wire((char*) "./models/z_arm.v3d");
+				gs->o[z_cur+4].m = mesh_wire((char*) "./models/z_leg.v3d");
+				gs->o[z_cur+5].m = mesh_wire((char*) "./models/z_leg.v3d");
+				
+				gs->z_seed[(z_cur-35)/6] = rand();
+				
 				vecd3 sp(rand() % 192 - 96, rand() % 192 - 96, 0);
 				gs->o[z_cur  ].p = sp;
 				gs->o[z_cur+1].p = sp;
@@ -100,6 +112,7 @@ void draw(app_handle& ah, void* state, double dt) {
 				
 				for (int i = z_cur; i < z_cur+6; i++) {
 					gs->o[i].show();
+					gs->o[i].color = 0x03AB03;
 				}
 			}
 		}
@@ -122,7 +135,7 @@ void draw(app_handle& ah, void* state, double dt) {
 				srand(gs->seed[i]);
 				
 				for (int j = 0; j < gs->o[i].m.en; j++) {
-					modifier = pow(gs->bl_timer[i], 1.5) / 2;
+					modifier = pow(gs->bl_timer[i], 1.5) / 1.5;
 					
 					p1 = gs->o[i].m.p[gs->o[i].m.e[j].x];
 					p2 = gs->o[i].m.p[gs->o[i].m.e[j].y];
@@ -259,7 +272,7 @@ void draw(app_handle& ah, void* state, double dt) {
 		vecd3 zombie_fce;
 		for (int i = 35; i < 155; i+=6) {
 			zom_num++;
-			if (!gs->o[i].is_hidden) {
+			if (gs->zombie_health[zom_num] > 0) {
 				// Rotate zombie to face the player.
 				// Rotate head
 				player_dir = (gs->c.p - gs->o[i].p).normalize();
@@ -317,6 +330,17 @@ void draw(app_handle& ah, void* state, double dt) {
 					gs->o[i+5].rotate(gs->o[i+1].p + vecd3(0, 0, 1.8), vecd3(0, 1, 0), -sin(gs->z_step_pt[zom_num]  ) / 10 , false);
 					
 					if (gs->z_step_pt[zom_num] > 3.14159*8) {
+						// Stabilize arms and legs after the animation cycle completes
+						gs->o[i+2].r = gs->o[i+1].r; gs->o[i+2].p = gs->o[i+1].p + gs->o[i+1].r.apply(vecd3(0, -0.7 , 0));
+						gs->o[i+3].r = gs->o[i+1].r; gs->o[i+3].p = gs->o[i+1].p + gs->o[i+1].r.apply(vecd3(0,  0.7 , 0));
+						gs->o[i+4].r = gs->o[i+1].r; gs->o[i+4].p = gs->o[i+1].p + gs->o[i+1].r.apply(vecd3(0, -0.25, 0));
+						gs->o[i+5].r = gs->o[i+1].r; gs->o[i+5].p = gs->o[i+1].p + gs->o[i+1].r.apply(vecd3(0,  0.25, 0));
+						
+						gs->o[i+2].rotate(gs->o[i+1].p + vecd3(0, 0, 3.4), gs->o[i+1].r.apply(vecd3(0, 1, 0)), -3.14159/2 - 0.05);
+						gs->o[i+3].rotate(gs->o[i+1].p + vecd3(0, 0, 3.4), gs->o[i+1].r.apply(vecd3(0, 1, 0)), -3.14159/2 + 0.05);
+						gs->o[i+4].rotate(gs->o[i+1].p + vecd3(0, 0, 1.8), gs->o[i+1].r.apply(vecd3(0, 1, 0)), -0.75);
+						gs->o[i+5].rotate(gs->o[i+1].p + vecd3(0, 0, 1.8), gs->o[i+1].r.apply(vecd3(0, 1, 0)),  0.75);
+						
 						gs->z_step_pt[zom_num] = 0;
 					}
 				}
@@ -333,6 +357,40 @@ void draw(app_handle& ah, void* state, double dt) {
 				gs->o[i+3].rotate(gs->o[i].p, vecd3(0, 0, 1), angle/16);
 				gs->o[i+4].rotate(gs->o[i].p, vecd3(0, 0, 1), angle/16);
 				gs->o[i+5].rotate(gs->o[i].p, vecd3(0, 0, 1), angle/16);
+			} else {
+				// Handle zombie death animation
+				// Still have i & zom_num
+				if (gs->o[i].color < 0xFFFFFF) {
+					for (int j = 0; j < 6; j++) {
+						gs->o[i+j].color += 0x030103;
+						
+						gs->zombie_death_timer[zom_num] += dt;
+						
+						srand(gs->z_seed[zom_num]);
+						
+						for (int k = 0; k < gs->o[i+j].m.en; k++) {
+							modifier = pow(gs->zombie_death_timer[zom_num], 1.2) / 4;
+							
+							p1 = gs->o[i+j].m.p[gs->o[i+j].m.e[k].x];
+							p2 = gs->o[i+j].m.p[gs->o[i+j].m.e[k].y];
+							pivot = vecd3(rand() % 1000 / 1000.0, rand() % 1000 / 1000.0, rand() % 1000 / 1000.0) + (p1+p2)/2;
+							
+							off = vecd3((rand() % 200 - 100) / 10000.0, (rand() % 200 - 100) / 10000.0, (rand() % 200 - 100) / 10000.0);
+							
+							rot = quaternion(vecd3(rand() % 1000, rand() % 1000, rand() % 1000).normalize(), 0.004 * modifier);
+							gs->o[i+j].m.p[gs->o[i+j].m.e[k].x] = quaternion::rotate(p1, pivot, rot) + off * modifier;
+							gs->o[i+j].m.p[gs->o[i+j].m.e[k].y] = quaternion::rotate(p2, pivot, rot) + off * modifier;
+						}
+					}
+				}
+				else {
+					if (!gs->o[i].is_hidden) {
+						gs->zombie_num--;
+						for (int j = 0; j < 6; j++) {
+							gs->o[i+j].hide();
+						}
+					}
+				}
 			}
 		}
 	
@@ -430,11 +488,13 @@ void click(event e, app_handle& ah, void* state) {
 		bx.xp =  0.25;
 		
 		for (int i = 36; i < 155; i+=6) {
-			hit_temp = bx.raycast(gs->o[i].p, gs->o[i].r, gs->o[i].s, gs->o[34].p, gs->o[34].forward());
-			if (!hit_temp.is_nan()) {
-				if ((hit - gs->o[34].p).sqr_mag() > (hit_temp - gs->o[34].p).sqr_mag() || hit.is_nan()) {
-					hit = hit_temp;
-					obj_hit = i;
+			if (gs->zombie_health[(i-36)/6] > 0) {
+				hit_temp = bx.raycast(gs->o[i].p, gs->o[i].r, gs->o[i].s, gs->o[34].p, gs->o[34].forward());
+				if (!hit_temp.is_nan()) {
+					if ((hit - gs->o[34].p).sqr_mag() > (hit_temp - gs->o[34].p).sqr_mag() || hit.is_nan()) {
+						hit = hit_temp;
+						obj_hit = i;
+					}
 				}
 			}
 		}
@@ -448,11 +508,13 @@ void click(event e, app_handle& ah, void* state) {
 		bx.xp =  0.4;
 		
 		for (int i = 35; i < 155; i+=6) {
-			hit_temp = bx.raycast(gs->o[i].p, gs->o[i].r, gs->o[i].s, gs->o[34].p, gs->o[34].forward());
-			if (!hit_temp.is_nan()) {
-				if ((hit - gs->o[34].p).sqr_mag() > (hit_temp - gs->o[34].p).sqr_mag() || hit.is_nan()) {
-					hit = hit_temp;
-					obj_hit = i;
+			if (gs->zombie_health[(i-35)/6] > 0) {
+				hit_temp = bx.raycast(gs->o[i].p, gs->o[i].r, gs->o[i].s, gs->o[34].p, gs->o[34].forward());
+				if (!hit_temp.is_nan()) {
+					if ((hit - gs->o[34].p).sqr_mag() > (hit_temp - gs->o[34].p).sqr_mag() || hit.is_nan()) {
+						hit = hit_temp;
+						obj_hit = i;
+					}
 				}
 			}
 		}
@@ -474,24 +536,16 @@ void click(event e, app_handle& ah, void* state) {
 		else if ((obj_hit - 35) % 6 == 0) {
 			zom_hit = (obj_hit-35)/6;
 			gs->zombie_health[zom_hit] -= 2;
-			
 			if (gs->zombie_health[zom_hit] <= 0) {
-				gs->zombie_num--;
-				for (int i = 0; i < 6; i++) {
-					gs->o[zom_hit*6+35 + i].hide();
-				}
+				gs->zombie_death_timer[zom_hit] = 0;
 			}
 		}
 		// Body shot
 		else if ((obj_hit - 36) % 6 == 0) {
 			zom_hit = (obj_hit-36)/6;
 			gs->zombie_health[zom_hit] -= 1;
-			
 			if (gs->zombie_health[zom_hit] <= 0) {
-				gs->zombie_num--;
-				for (int i = 0; i < 6; i++) {
-					gs->o[zom_hit*6+35 + i].hide();
-				}
+				gs->zombie_death_timer[zom_hit] = 0;
 			}
 		}
 		
@@ -534,9 +588,6 @@ int main() {
 	
 	// seed RNG
 	srand(0);
-	for (int i = 0; i < 32; i++) {
-		gs.seed[i] = rand();
-	}
 	
 	// Position camera
 	gs.c.translate(vecd3(0, 0, 4));
@@ -546,8 +597,13 @@ int main() {
 	gs.o = new object[gs.o_n];
 	
 	for (int i = 0; i < 32; i++) {
+		gs.seed[i] = rand();
 		gs.o[i].color = 0xFFFFFF;
 		gs.bl_timer[i] = 0;
+	}
+	
+	for (int i = 0; i < 20; i++) {
+		gs.z_seed[i] = rand();
 	}
 	
 	// Create floor
@@ -647,7 +703,7 @@ int main() {
 	
 	// Color & hide Zombies
 	for (int i = 35; i < 155; i++) {
-		gs.o[i].color = 0x00AA00;
+		gs.o[i].color = 0x03AB03;
 		gs.o[i].hide();
 	}
 	
