@@ -12,11 +12,16 @@ public:
 	
 	bool paused;
 	
+	double player_health;
+	
 	// Pointer to the next space to occupy with a new bullet line. Points to indices 1-32 in the object array gs.o
 	int bl_cur;
 	
 	// Timer since the game statrted
 	double game_timer;
+	
+	// If the "Game Over" text has already been shown
+	bool has_lost;
 	
 	// Current number of zombies in play. Maxes out at 20
 	int zombie_num;
@@ -29,9 +34,13 @@ public:
 	
 	// Controls zombie animation
 	double z_step_pt[20];
+	double z_arm_pt[20];
 	
 	// Controls randomness in zombie animation
 	unsigned int z_seed[20];
+	
+	// Number of kills
+	int kills;
 	
 	// Timer used to control the gun firing animation and firing delay
 	double shot_timer;
@@ -48,7 +57,7 @@ public:
 	game_state();
 };
 
-game_state::game_state() : c(), o(NULL), o_n(0), paused(false), bl_cur(1), step_pt(0), game_timer(0), zombie_num(0), shot_timer(1) {}
+game_state::game_state() : c(), o(NULL), o_n(0), paused(false), bl_cur(1), step_pt(0), game_timer(0), zombie_num(0), kills(0), has_lost(false), shot_timer(1), player_health(100) {}
 
 void init(app_handle& ah, void* state) {
 	ah.hide_pointer();
@@ -62,7 +71,7 @@ void draw(app_handle& ah, void* state, double dt) {
 		gs->game_timer += dt;
 		
 		// Number of zombies that should be in play at this time.
-		int zombie_targ = fmin(gs->game_timer / 5, 19);
+		int zombie_targ = fmin(gs->game_timer / 5, 2);
 		
 		// Spawn zombies
 		if (gs->zombie_num < zombie_targ && rand() % 1000 / 1000 < dt) {
@@ -105,6 +114,9 @@ void draw(app_handle& ah, void* state, double dt) {
 				
 				gs->o[z_cur+4].rotate(sp + vecd3(0, 0, 1.8), vecd3(0, 1, 0), -0.75);
 				gs->o[z_cur+5].rotate(sp + vecd3(0, 0, 1.8), vecd3(0, 1, 0),  0.75);
+							
+				gs->z_step_pt[(z_cur-35)/6] = 0;
+				gs->z_arm_pt[(z_cur-35)/6] = 0;
 				
 				gs->zombie_health[(z_cur-35)/6] = 4;
 				
@@ -273,76 +285,92 @@ void draw(app_handle& ah, void* state, double dt) {
 		for (int i = 35; i < 155; i+=6) {
 			zom_num++;
 			if (gs->zombie_health[zom_num] > 0) {
-				// Rotate zombie to face the player.
-				// Rotate head
-				player_dir = (gs->c.p - gs->o[i].p).normalize();
-				zombie_fce = gs->o[i].forward();
-				angle = atan2(player_dir.y, player_dir.x) - atan2(zombie_fce.y, zombie_fce.x);
-				if (angle > 3.14159) {
-					angle -= 3.14159*2;
-				}
-				gs->o[i].rotate(vecd3(0, 0, 1), angle/3);
-				
-				// Move zombie towards player
-				vecd3 f = gs->o[i].forward();
-				move_speed = 8*dt;
-				f = vecd3(f.x, f.y, 0).normalize(move_speed);
-				space_free = true;
-				for (int j = 155; j < gs->o_n; j++) {
-					hit = bx.raycast(gs->o[j].p, gs->o[j].r, gs->o[j].s, gs->o[i].p + vecd3(0, 0, 0.5), f);
-					if (hit.is_nan() || (hit - (gs->o[i].p + vecd3(0, 0, 0.5))).mag() > move_speed*3) {
-						continue;
+				// Move zombie forward if more than 1 unit away
+				if ((vecd2(gs->c.p.x, gs->c.p.y) - vecd2(gs->o[i].p.x, gs->o[i].p.y)).mag() > 1) {
+					// Rotate zombie to face the player.
+					// Rotate head
+					player_dir = (gs->c.p - gs->o[i].p).normalize();
+					zombie_fce = gs->o[i].forward();
+					angle = atan2(player_dir.y, player_dir.x) - atan2(zombie_fce.y, zombie_fce.x);
+					if (angle > 3.14159) {
+						angle -= 3.14159*2;
 					}
-					space_free = false;
-					break;
-				}
-				if (space_free) {
-					bx.zn =  0;
-					bx.zp =  3.6;
-					bx.yn = -0.9;
-					bx.yp =  0.9;
-					bx.xn = -0.25;
-					bx.xp =  0.25;
-					
-					for (int j = 35; j < 155; j+=6) {
-						if (j == i) {continue;}
-						hit = bx.raycast(gs->o[j].p, gs->o[j].r, gs->o[j].s, gs->o[i].p + vecd3(0, 0, 0.5), f);
-						if (hit.is_nan() || (hit - (gs->o[i].p + vecd3(0, 0, 0.5))).mag() > move_speed*3) {
+					gs->o[i].rotate(vecd3(0, 0, 1), angle/3);
+				
+					move_speed = 8*dt;
+					vecd3 f = gs->o[i+1].forward();
+					f = vecd3(f.x, f.y, 0).normalize(move_speed);
+					space_free = true;
+					for (int j = 155; j < gs->o_n; j++) {
+						hit = bx.raycast(gs->o[j].p, gs->o[j].r, gs->o[j].s, gs->o[i+1].p + vecd3(0, 0, 0.5), f);
+						if (hit.is_nan() || (hit - (gs->o[i+1].p + vecd3(0, 0, 0.5))).mag() > move_speed*3) {
 							continue;
 						}
 						space_free = false;
 						break;
 					}
-				}
-				if (space_free) {
-					gs->o[i  ].p = gs->o[i  ].p + f;
-					gs->o[i+1].p = gs->o[i+1].p + f;
-					gs->o[i+2].p = gs->o[i+2].p + f;
-					gs->o[i+3].p = gs->o[i+3].p + f;
-					gs->o[i+4].p = gs->o[i+4].p + f;
-					gs->o[i+5].p = gs->o[i+5].p + f;
-					
-					// Zombie animation
-					gs->z_step_pt[zom_num] += 8 * dt;
-					gs->o[i+2].rotate(gs->o[i+1].p + vecd3(0, 0, 3.4), vecd3(0, 1, 0),  sin(gs->z_step_pt[zom_num]/4) / 400, false);
-					gs->o[i+3].rotate(gs->o[i+1].p + vecd3(0, 0, 3.4), vecd3(0, 1, 0), -sin(gs->z_step_pt[zom_num]/4) / 400, false);
-					gs->o[i+4].rotate(gs->o[i+1].p + vecd3(0, 0, 1.8), vecd3(0, 1, 0),  sin(gs->z_step_pt[zom_num]  ) / 10 , false);
-					gs->o[i+5].rotate(gs->o[i+1].p + vecd3(0, 0, 1.8), vecd3(0, 1, 0), -sin(gs->z_step_pt[zom_num]  ) / 10 , false);
-					
-					if (gs->z_step_pt[zom_num] > 3.14159*8) {
-						// Stabilize arms and legs after the animation cycle completes
-						gs->o[i+2].r = gs->o[i+1].r; gs->o[i+2].p = gs->o[i+1].p + gs->o[i+1].r.apply(vecd3(0, -0.7 , 0));
-						gs->o[i+3].r = gs->o[i+1].r; gs->o[i+3].p = gs->o[i+1].p + gs->o[i+1].r.apply(vecd3(0,  0.7 , 0));
-						gs->o[i+4].r = gs->o[i+1].r; gs->o[i+4].p = gs->o[i+1].p + gs->o[i+1].r.apply(vecd3(0, -0.25, 0));
-						gs->o[i+5].r = gs->o[i+1].r; gs->o[i+5].p = gs->o[i+1].p + gs->o[i+1].r.apply(vecd3(0,  0.25, 0));
+					if (space_free) {
+						bx.zn =  0;
+						bx.zp =  3.6;
+						bx.yn = -0.9;
+						bx.yp =  0.9;
+						bx.xn = -0.25;
+						bx.xp =  0.25;
 						
-						gs->o[i+2].rotate(gs->o[i+1].p + vecd3(0, 0, 3.4), gs->o[i+1].r.apply(vecd3(0, 1, 0)), -3.14159/2 - 0.05);
-						gs->o[i+3].rotate(gs->o[i+1].p + vecd3(0, 0, 3.4), gs->o[i+1].r.apply(vecd3(0, 1, 0)), -3.14159/2 + 0.05);
-						gs->o[i+4].rotate(gs->o[i+1].p + vecd3(0, 0, 1.8), gs->o[i+1].r.apply(vecd3(0, 1, 0)), -0.75);
-						gs->o[i+5].rotate(gs->o[i+1].p + vecd3(0, 0, 1.8), gs->o[i+1].r.apply(vecd3(0, 1, 0)),  0.75);
-						
-						gs->z_step_pt[zom_num] = 0;
+						for (int j = 35; j < 155; j+=6) {
+							if (j == i || gs->zombie_health[(i-35)/6] <= 0) {continue;}
+							hit = bx.raycast(gs->o[j].p, gs->o[j].r, gs->o[j].s, gs->o[i+1].p + vecd3(0, 0, 0.5), f);
+							if (hit.is_nan() || (hit - (gs->o[i+1].p + vecd3(0, 0, 0.5))).mag() > move_speed*3) {
+								continue;
+							}
+							space_free = false;
+							break;
+						}
 					}
+					if (space_free) {
+						gs->o[i  ].p = gs->o[i  ].p + f;
+						gs->o[i+1].p = gs->o[i+1].p + f;
+						gs->o[i+2].p = gs->o[i+2].p + f;
+						gs->o[i+3].p = gs->o[i+3].p + f;
+						gs->o[i+4].p = gs->o[i+4].p + f;
+						gs->o[i+5].p = gs->o[i+5].p + f;
+					
+						// Zombie animation
+						gs->z_step_pt[zom_num] += 8 * dt;
+						gs->z_arm_pt[zom_num] += 8 * dt;
+						gs->o[i+2].rotate(gs->o[i+1].p + vecd3(0, 0, 3.4), vecd3(0, 1, 0),  sin(gs->z_arm_pt[zom_num] ) / 400, false);
+						gs->o[i+3].rotate(gs->o[i+1].p + vecd3(0, 0, 3.4), vecd3(0, 1, 0), -sin(gs->z_arm_pt[zom_num] ) / 400, false);
+						gs->o[i+4].rotate(gs->o[i+1].p + vecd3(0, 0, 1.8), vecd3(0, 1, 0),  sin(gs->z_step_pt[zom_num]) / 10 , false);
+						gs->o[i+5].rotate(gs->o[i+1].p + vecd3(0, 0, 1.8), vecd3(0, 1, 0), -sin(gs->z_step_pt[zom_num]) / 10 , false);
+					
+						if (gs->z_step_pt[zom_num] > 3.14159*8) {
+							// Reset walking animation
+							gs->o[i+4].p = gs->o[i+1].p + gs->o[i+1].r.apply(vecd3(0, -0.25, 0));
+							gs->o[i+5].p = gs->o[i+1].p + gs->o[i+1].r.apply(vecd3(0,  0.25, 0));
+							
+							gs->o[i+4].r = gs->o[i+1].r;
+							gs->o[i+5].r = gs->o[i+1].r;
+							
+							gs->o[i+4].rotate(gs->o[i+1].p + vecd3(0, 0, 1.8), vecd3(0, 1, 0), -0.75, false);
+							gs->o[i+5].rotate(gs->o[i+1].p + vecd3(0, 0, 1.8), vecd3(0, 1, 0),  0.75, false);
+						
+							gs->z_step_pt[zom_num] = 0;
+						}
+						if (gs->z_arm_pt[zom_num] > 3.14159*2) {
+							gs->o[i+2].p = gs->o[i+1].p + gs->o[i+1].r.apply(vecd3(0, -0.7 , 0));
+							gs->o[i+3].p = gs->o[i+1].p + gs->o[i+1].r.apply(vecd3(0,  0.7 , 0));
+							
+							gs->o[i+2].r = gs->o[i+1].r;
+							gs->o[i+3].r = gs->o[i+1].r;
+						
+							gs->o[i+2].rotate(gs->o[i+1].p + vecd3(0, 0, 3.4), vecd3(0, 1, 0), -3.14159/2 - 0.05, false);
+							gs->o[i+3].rotate(gs->o[i+1].p + vecd3(0, 0, 3.4), vecd3(0, 1, 0), -3.14159/2 + 0.05, false);
+							
+							gs->z_arm_pt[zom_num] = 0;
+						}
+					}
+				} else {
+					gs->player_health -= 50 * dt;
 				}
 				
 				// Rotate body
@@ -359,7 +387,6 @@ void draw(app_handle& ah, void* state, double dt) {
 				gs->o[i+5].rotate(gs->o[i].p, vecd3(0, 0, 1), angle/16);
 			} else {
 				// Handle zombie death animation
-				// Still have i & zom_num
 				if (gs->o[i].color < 0xFFFFFF) {
 					for (int j = 0; j < 6; j++) {
 						gs->o[i+j].color += 0x030103;
@@ -385,6 +412,7 @@ void draw(app_handle& ah, void* state, double dt) {
 				}
 				else {
 					if (!gs->o[i].is_hidden) {
+						gs->kills++;
 						gs->zombie_num--;
 						for (int j = 0; j < 6; j++) {
 							gs->o[i+j].hide();
@@ -413,6 +441,19 @@ void draw(app_handle& ah, void* state, double dt) {
 	
 	ah.clear_display();
 	ah.render(gs->c, gs->o, gs->o_n);
+	ah.set_foreground(0xEE4444);
+	ah.fill_rect(0, 0, gs->player_health / 100 * ah.win_w, 5);
+	char* num = (char*) malloc(32 * sizeof(char*));
+	sprintf(num, "kills: %d", gs->kills);
+	ah.draw_text(num, 17, 5, 22);
+	free(num);
+	if (gs->player_health < 0) {
+		ah.draw_text((char*) "Game Over", 100, (ah.win_w-500)/2, ah.win_h/2 + 30);
+		ah.draw_text((char*) "Press esc to restart", 30, (ah.win_w-250)/2, ah.win_h/2 + 60);
+		gs->paused = true;
+		gs->has_lost = true;
+		ah.show_pointer();
+	}
 	ah.update_display();
 }
 
@@ -428,6 +469,20 @@ void key_press(event e, app_handle& ah, void* state) {
 		} else {
 			ah.hide_pointer();
 			ah.set_pointer(ah.win_w/2, ah.win_h/2);
+			if (gs->has_lost) {
+				// reset the game
+				gs->has_lost = false;
+				gs->player_health = 100;
+				gs->game_timer = 0;
+				gs->zombie_num = 0;
+				gs->kills = 0;
+				for (int i = 0; i < 20; i++) {
+					gs->zombie_health[i] = 0;
+				}
+				for (int i = 35; i < 155; i++) {
+					gs->o[i].hide();
+				}
+			}
 		}
 	}
 }
@@ -699,6 +754,7 @@ int main() {
 		gs.zombie_health[i] = 0;
 		gs.zombie_death_timer[i] = 0;
 		gs.z_step_pt[i] = 0;
+		gs.z_arm_pt[i] = 0;
 	}
 	
 	// Color & hide Zombies

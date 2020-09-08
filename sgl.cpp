@@ -305,6 +305,30 @@ namespace sgl {
 		XDrawRectangle(d, pm, gc, x1, y1, abs(x1 - x2), abs(y1 - y2));
 	}
 	
+	void app_handle::fill_rect(int x1, int y1, int x2, int y2) {
+		int t;
+		if (x1 > x2) {
+			t = x1;
+			x1 = x2;
+			x2 = t;
+		}
+		if (y1 > y2) {
+			t = y1;
+			y1 = y2;
+			y2 = t;
+		}
+		XFillRectangle(d, pm, gc, x1, y1, abs(x1 - x2), abs(y1 - y2));
+	}
+	
+	void app_handle::draw_text(char* t, int size, int x, int y) {
+		char* str = (char*) malloc(128 * sizeof(char*));
+		sprintf(str, "-bitstream-bitstream charter-medium-i-normal--%d-0-0-0-p-0-iso10646-1", size);
+		Font f = XLoadFont(d, str);
+		XTextItem i = {t, (int) strlen(t), 0, f};
+		XDrawText(d, pm, gc, x, y, &i, 1);
+		free(str);
+	}
+	
 	void app_handle::set_foreground(unsigned long c) {
 		gcv.foreground = c;
 		XSetForeground(d, gc, gcv.foreground);

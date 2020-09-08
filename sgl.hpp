@@ -93,6 +93,9 @@ namespace sgl {
 		void draw_pixel(int x, int y);
 		void draw_line(int x1, int y1, int x2, int y2);
 		void draw_rect(int x1, int y1, int x2, int y2);
+		void fill_rect(int x1, int y1, int x2, int y2);
+		
+		void draw_text(char*, int size, int x, int y);
 		
 		// Modify GC
 		void set_foreground(unsigned long c);
