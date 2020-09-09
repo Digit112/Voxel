@@ -33,7 +33,7 @@ namespace sgl {
 		object apply(const object&);
 		
 		// Apply the inverse camera transform to the given mesh.
-		void apply(mesh_wire&);
+		void apply(wire_mesh&);
 	};
 }
 

@@ -15,7 +15,7 @@ namespace sgl {
 		vecd3 s;
 		
 		// TODO change to union
-		mesh_wire m;
+		wire_mesh m;
 		
 		unsigned int color;
 		
@@ -36,7 +36,7 @@ namespace sgl {
 		void hide();
 		void show();
 		
-		mesh_wire& applied(mesh_wire& o) const;
+		wire_mesh& applied(wire_mesh& o) const;
 	};
 }
 

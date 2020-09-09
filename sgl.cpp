@@ -399,7 +399,7 @@ namespace sgl {
 	}
 	
 	void app_handle::render(cam c, const object* o, int o_n) {
-		sgl::mesh_wire m;
+		sgl::wire_mesh m;
 		for (int i = 0; i < o_n; i++) {
 			if (o[i].is_hidden) {
 				continue;

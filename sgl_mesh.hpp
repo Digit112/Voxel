@@ -8,9 +8,9 @@
 #include "util.cpp"
 
 namespace sgl {
-	class mesh_wire;
+	class wire_mesh;
 	
-	class mesh_wire {
+	class wire_mesh {
 	public:
 		int pn;
 		int en;
@@ -20,19 +20,19 @@ namespace sgl {
 		
 		enum primtype : int {CUBE, POLYGON, GRID, ICOSAHEDRON, CYLINDER, UVSPHERE, TORUS};
 		
-		mesh_wire();
-		mesh_wire(int pn, int en);
-		mesh_wire(darray<vecd3> p, int pn, darray<veci2> e, int en);
+		wire_mesh();
+		wire_mesh(int pn, int en);
+		wire_mesh(darray<vecd3> p, int pn, darray<veci2> e, int en);
 		
 		// From file
-		mesh_wire(char*);
+		wire_mesh(char*);
 		
 		void translate(vecd3 t);
 		void rotate(quaternion r);
 		void rotate(vecd3 axis, double theta);
 		void scale(vecd3 s);
 		
-		mesh_wire(primtype prim, int opt1, int opt2, double opt3);
+		wire_mesh(primtype prim, int opt1, int opt2, double opt3);
 	};
 }
 

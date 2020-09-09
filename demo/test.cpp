@@ -20,7 +20,7 @@ public:
 	cube_cursor();
 };
 
-cube_cursor::cube_cursor() : cx(0), cy(0), opt1(64), opt2(32), p(sgl::mesh_wire::CUBE), c() {}
+cube_cursor::cube_cursor() : cx(0), cy(0), opt1(64), opt2(32), p(sgl::wire_mesh::CUBE), c() {}
 
 void draw(sgl::app_handle& ah, void* state, double dt) {
 	cube_cursor* cc = (cube_cursor*) state;
@@ -74,32 +74,32 @@ void on_key(sgl::event e, sgl::app_handle& ah, void* state) {
 		}
 	}
 	else if (e.code == 113) {
-		if (cc->p > sgl::mesh_wire::CUBE) {
+		if (cc->p > sgl::wire_mesh::CUBE) {
 			cc->p = cc->p - 1;
 		}
 	}
 	else if (e.code == 114) {
-		if (cc->p < sgl::mesh_wire::TORUS) {
+		if (cc->p < sgl::wire_mesh::TORUS) {
 			cc->p = cc->p + 1;
 		}
 	} else {
 		return;
 	}
-	if (cc->p == sgl::mesh_wire::ICOSAHEDRON) {
+	if (cc->p == sgl::wire_mesh::ICOSAHEDRON) {
 		int temp = cc->opt2 - 2;
 		if (temp > 3) {
 			temp = 3;
 		}
-		sgl::mesh_wire m((sgl::mesh_wire::primtype) cc->p, temp, cc->opt2, 0.5);
+		sgl::wire_mesh m((sgl::wire_mesh::primtype) cc->p, temp, cc->opt2, 0.5);
 		cc->o.m = m;
-	} else if (cc->p == sgl::mesh_wire::CYLINDER) {
-		sgl::mesh_wire m((sgl::mesh_wire::primtype) cc->p, cc->opt2);
+	} else if (cc->p == sgl::wire_mesh::CYLINDER) {
+		sgl::wire_mesh m((sgl::wire_mesh::primtype) cc->p, cc->opt2);
 		cc->o.m = m;
-	} else if (cc->p == sgl::mesh_wire::GRID) {
-		sgl::mesh_wire m((sgl::mesh_wire::primtype) cc->p, cc->opt1/2, cc->opt2);
+	} else if (cc->p == sgl::wire_mesh::GRID) {
+		sgl::wire_mesh m((sgl::wire_mesh::primtype) cc->p, cc->opt1/2, cc->opt2);
 		cc->o.m = m;
 	} else {
-		sgl::mesh_wire m((sgl::mesh_wire::primtype) cc->p, cc->opt1, cc->opt2, 0.5);
+		sgl::wire_mesh m((sgl::wire_mesh::primtype) cc->p, cc->opt1, cc->opt2, 0.5);
 		cc->o.m = m;
 	}
 }
@@ -121,7 +121,7 @@ void drag(sgl::event e, sgl::app_handle& ah, void* state) {
 
 int main() {
 	cube_cursor cc;
-	sgl::mesh_wire m(sgl::mesh_wire::CUBE);
+	sgl::wire_mesh m(sgl::wire_mesh::CUBE);
 	cc.o.m = m;
 	cc.c.translate(sgl::vecd3(-4, 0, 0));
 	cc.c.clip_near = 0.01;

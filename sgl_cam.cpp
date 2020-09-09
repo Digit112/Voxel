@@ -43,7 +43,7 @@ namespace sgl {
 		return o;
 	}
 	
-	void cam::apply(mesh_wire& a) {
+	void cam::apply(wire_mesh& a) {
 		for (int i = 0; i < a.pn; i++) {
 			a.p[i] = (!r).apply(a.p[i] - p);
 		}

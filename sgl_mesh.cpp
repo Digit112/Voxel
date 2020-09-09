@@ -1,13 +1,13 @@
 namespace sgl {
-	mesh_wire::mesh_wire() : p(), pn(0), e(), en(0) {}
+	wire_mesh::wire_mesh() : p(), pn(0), e(), en(0) {}
 	
-	mesh_wire::mesh_wire(int pn, int en) : pn(pn), en(en) {
+	wire_mesh::wire_mesh(int pn, int en) : pn(pn), en(en) {
 		p = darray<vecd3>(pn);
 		e = darray<veci2>(en);
 	}
-	mesh_wire::mesh_wire(darray<vecd3> p, int pn, darray<veci2> e, int en) : p(p), pn(pn), e(e), en(en) {}
+	wire_mesh::wire_mesh(darray<vecd3> p, int pn, darray<veci2> e, int en) : p(p), pn(pn), e(e), en(en) {}
 	
-	mesh_wire::mesh_wire(char* fn) {
+	wire_mesh::wire_mesh(char* fn) {
 		FILE* fp;
 		
 		int a;
@@ -85,7 +85,7 @@ namespace sgl {
 		fclose(fp);
 	}
 	
-	mesh_wire::mesh_wire(primtype prim, int opt1 = 0, int opt2 = 0, double opt3 = 0.0) {
+	wire_mesh::wire_mesh(primtype prim, int opt1 = 0, int opt2 = 0, double opt3 = 0.0) {
 		if (prim == CUBE) {
 			pn = 8;
 			en = 12;
@@ -393,26 +393,26 @@ namespace sgl {
 		}
 	}
 	
-	void mesh_wire::translate(vecd3 t) {
+	void wire_mesh::translate(vecd3 t) {
 		for (int i = 0; i < pn; i++) {
 			p[i] = p[i] + t;
 		}
 	}
 	
-	void mesh_wire::rotate(quaternion r) {
+	void wire_mesh::rotate(quaternion r) {
 		for (int i = 0; i < pn; i++) {
 			p[i] = r.apply(p[i]);
 		}
 	}
 	
-	void mesh_wire::rotate(vecd3 axis, double theta) {
+	void wire_mesh::rotate(vecd3 axis, double theta) {
 		quaternion r = quaternion(axis, theta);
 		for (int i = 0; i < pn; i++) {
 			p[i] = r.apply(p[i]);
 		}
 	}
 	
-	void mesh_wire::scale(vecd3 s) {
+	void wire_mesh::scale(vecd3 s) {
 		for (int i = 0; i < pn; i++) {
 			p[i] = p[i] * s;
 		}

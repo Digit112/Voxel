@@ -57,7 +57,7 @@ namespace sgl {
 		is_hidden = false;
 	}
 	
-	mesh_wire& object::applied(mesh_wire& o) const {
+	wire_mesh& object::applied(wire_mesh& o) const {
 		o.pn = m.pn;
 		o.en = m.en;
 		o.p = darray<vecd3>(o.pn);
