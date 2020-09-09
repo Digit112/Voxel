@@ -71,7 +71,7 @@ void draw(app_handle& ah, void* state, double dt) {
 		gs->game_timer += dt;
 		
 		// Number of zombies that should be in play at this time.
-		int zombie_targ = fmin(gs->game_timer / 5, 2);
+		int zombie_targ = fmin(gs->game_timer / 5, 14);
 		
 		// Spawn zombies
 		if (gs->zombie_num < zombie_targ && rand() % 1000 / 1000 < dt) {
@@ -296,19 +296,24 @@ void draw(app_handle& ah, void* state, double dt) {
 						angle -= 3.14159*2;
 					}
 					gs->o[i].rotate(vecd3(0, 0, 1), angle/3);
-				
+					
 					move_speed = 8*dt;
+					hit = vecd3(100, 100, 100);
+					vecd3 temp_hit;
 					vecd3 f = gs->o[i+1].forward();
 					f = vecd3(f.x, f.y, 0).normalize(move_speed);
 					space_free = true;
 					for (int j = 155; j < gs->o_n; j++) {
-						hit = bx.raycast(gs->o[j].p, gs->o[j].r, gs->o[j].s, gs->o[i+1].p + vecd3(0, 0, 0.5), f);
-						if (hit.is_nan() || (hit - (gs->o[i+1].p + vecd3(0, 0, 0.5))).mag() > move_speed*3) {
-							continue;
+						temp_hit = bx.raycast(gs->o[j].p, gs->o[j].r, gs->o[j].s, gs->o[i+1].p + vecd3(0, 0, 0.5), f);
+						if (!temp_hit.is_nan() && (temp_hit - (gs->o[i+1].p + vecd3(0, 0, 0.5))).sqr_mag() < (hit - (gs->o[i+1].p + vecd3(0, 0, 0.5))).sqr_mag()) {
+							hit = temp_hit;
 						}
-						space_free = false;
-						break;
 					}
+					
+					if ((hit - (gs->o[i+1].p + vecd3(0, 0, 0.5))).sqr_mag() < move_speed*move_speed*3) {
+						space_free = false;
+					}
+					
 					if (space_free) {
 						bx.zn =  0;
 						bx.zp =  3.6;
@@ -319,14 +324,16 @@ void draw(app_handle& ah, void* state, double dt) {
 						
 						for (int j = 35; j < 155; j+=6) {
 							if (j == i || gs->zombie_health[(i-35)/6] <= 0) {continue;}
-							hit = bx.raycast(gs->o[j].p, gs->o[j].r, gs->o[j].s, gs->o[i+1].p + vecd3(0, 0, 0.5), f);
-							if (hit.is_nan() || (hit - (gs->o[i+1].p + vecd3(0, 0, 0.5))).mag() > move_speed*3) {
+							temp_hit = bx.raycast(gs->o[j].p, gs->o[j].r, gs->o[j].s, gs->o[i+1].p + vecd3(0, 0, 0.5), f);
+							if (temp_hit.is_nan() || (temp_hit - (gs->o[i+1].p + vecd3(0, 0, 0.5))).mag() > move_speed*3) {
 								continue;
 							}
+							hit = temp_hit;
 							space_free = false;
 							break;
 						}
 					}
+					
 					if (space_free) {
 						gs->o[i  ].p = gs->o[i  ].p + f;
 						gs->o[i+1].p = gs->o[i+1].p + f;
@@ -648,7 +655,7 @@ int main() {
 	gs.c.translate(vecd3(0, 0, 4));
 	
 	// Create space for objects
-	gs.o_n = 170;
+	gs.o_n = 190;
 	gs.o = new object[gs.o_n];
 	
 	for (int i = 0; i < 32; i++) {
