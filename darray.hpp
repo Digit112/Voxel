@@ -48,6 +48,12 @@ public:
 	void set_size(int s);
 	void set_cap(int c);
 	
+	// Add an object to an array
+	void append(T);
+	
+	// Replace something in the array "a" with "b", requires equality and assignment operator overloads. Returns index of the object replaced or -1 if the object was not found
+	void remove(T);
+	
 	~darray();
 };
 

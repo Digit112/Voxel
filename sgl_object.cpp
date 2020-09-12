@@ -1,5 +1,13 @@
 namespace sgl {
-	object::object() : p(0, 0, 0), r(1, 0, 0, 0), s(1, 1, 1), color(0), is_hidden(false) {}
+	object::object() : p(0, 0, 0), r(1, 0, 0, 0), s(1, 1, 1), children(), parent(NULL), color(0), is_hidden(false) {}
+	
+	void object::set_parent(object* p) {
+		if (parent != NULL) {
+			parent->children.remove(this);
+		}
+		parent = p;
+		p->children.append(this);
+	}
 	
 	void object::translate(vecd3 a, bool is_global = true) {
 		if (is_global) {

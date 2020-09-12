@@ -1,6 +1,7 @@
 #ifndef sgl_object
 #define sgl_object
 
+#include "darray.hpp"
 #include "sgl_mesh.hpp"
 #include "sgl_vec.hpp"
 
@@ -14,14 +15,23 @@ namespace sgl {
 		quaternion r;
 		vecd3 s;
 		
-		// TODO change to union
+		// This object's mesh
 		wire_mesh m;
+		
+		// This object's children.
+		darray<object*> children;
+		
+		// This object's parent
+		object* parent;
 		
 		unsigned int color;
 		
 		bool is_hidden;
 		
 		object();
+		
+		// Properly set or change this object's parent
+		void set_parent(object* p);
 		
 		void translate(vecd3 t, bool is_global);
 		void rotate(quaternion r, bool is_global);

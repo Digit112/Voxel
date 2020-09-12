@@ -121,6 +121,29 @@ void darray<T>::set_cap(int c) {
 }
 
 template<class T>
+void darray<T>::append(T a) {
+	if (cap > size) {
+		data[size] = a;
+		size++;
+	}
+	else {
+		printf("Error: Attempt to append to darray of size %d at maximum capacity %d. Ensure array capacity is sufficient prior to making changes which increase size.\n", size, cap);
+		exit(1);
+	}
+}
+
+template<class T>
+int darray<T>::replace(T a, T b);
+	for (int i = 0; i < size; i++) {
+		if (data[i] == a) {
+			data[i] = b;
+			return i;
+		}
+	}
+	return -1;
+}
+	
+template<class T>
 darray<T>::~darray() {
 	if (data != NULL) {
 		delete[] data;
