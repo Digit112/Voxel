@@ -1,5 +1,6 @@
 namespace sgl {
 	object::object() : p(0, 0, 0), r(1, 0, 0, 0), s(1, 1, 1), children(), parent(NULL), color(0), is_hidden(false) {}
+	object::object(int c) : p(0, 0, 0), r(1, 0, 0, 0), s(1, 1, 1), children(0, c), parent(NULL), color(0), is_hidden(false) {}
 	
 	void object::set_parent(object* p) {
 		if (parent != NULL) {
@@ -12,39 +13,82 @@ namespace sgl {
 	void object::translate(vecd3 a, bool is_global = true) {
 		if (is_global) {
 			p = p + a;
-			return;
+		} else {
+			p = p + r.apply(a);
 		}
-		p = p + r.apply(a);
+		
+		for (int c = 0; c < this->children.size; c++) {
+			this->children[c]->translate(a, is_global);
+		}
 	}
 	
 	void object::rotate(quaternion a, bool is_global = true) {
 		if (is_global) {
 			r = quaternion::hamilton(a, r);
-			return;
+		} else {
+			r = quaternion::hamilton(r, a);
 		}
-		r = quaternion::hamilton(r, a);
+		
+		for (int c = 0; c < this->children.size; c++) {
+			this->children[c]->rotate(this->p, a, is_global);
+		}
+	}
+	
+	void object::rotate(vecd3 offset, quaternion a, bool is_global = true) {
+		if (is_global) {
+			r = quaternion::hamilton(a, r);
+			p = quaternion::rotate(p, offset, a);
+		} else {
+			r = quaternion::hamilton(r, a);
+			p = quaternion::rotate(p, offset, quaternion::hamilton(r, a));
+		}
+		
+		for (int c = 0; c < this->children.size; c++) {
+			this->children[c]->rotate(offset, a, is_global);
+		}
 	}
 	
 	void object::rotate(vecd3 axis, double theta, bool is_global = true) {
 		if (is_global) {
 			r = quaternion::hamilton(quaternion(axis, theta), r);
-			return;
+		} else {
+			r = quaternion::hamilton(r, quaternion(axis, theta) );
 		}
-		r = quaternion::hamilton(r, quaternion(axis, theta) );
+		
+		for (int c = 0; c < this->children.size; c++) {
+			this->children[c]->rotate(this->p, axis, theta, is_global);
+		}
 	}
 	
 	void object::rotate(vecd3 offset, vecd3 axis, double theta, bool is_global = true) {
 		if (is_global) {
 			r = quaternion::hamilton(quaternion(axis, theta), r);
 			p = quaternion::rotate(p, offset, axis, theta);
-			return;
+		} else {
+			r = quaternion::hamilton(r, quaternion(axis, theta) );
+			p = quaternion::rotate(p, offset, r.apply(axis), theta);
 		}
-		r = quaternion::hamilton(r, quaternion(axis, theta) );
-		p = quaternion::rotate(p, offset, r.apply(axis), theta);
+		
+		for (int c = 0; c < this->children.size; c++) {
+			this->children[c]->rotate(offset, axis, theta, is_global);
+		}
 	}
 	
 	void object::scale(vecd3 a) {
 		s = s * a;
+		
+		for (int c = 0; c < this->children.size; c++) {
+			this->children[c]->scale(p, a);
+		}
+	}
+	
+	void object::scale(vecd3 offset, vecd3 a) {
+		s = s * a;
+		p = (p - offset) * a + offset;
+		
+		for (int c = 0; c < this->children.size; c++) {
+			this->children[c]->scale(offset, a);
+		}
 	}
 	
 	vecd3 object::forward() {

@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 template<class T>
 class darray {
@@ -51,8 +52,9 @@ public:
 	// Add an object to an array
 	void append(T);
 	
-	// Replace something in the array "a" with "b", requires equality and assignment operator overloads. Returns index of the object replaced or -1 if the object was not found
-	void remove(T);
+	// Removes the first found instance of this element and memmove's the remaining elements to fill the gap,
+	// reduces the size of the array by 1 returns the index of the element removed or -1 if no element was found.
+	int remove(T);
 	
 	~darray();
 };

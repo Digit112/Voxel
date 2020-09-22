@@ -45,7 +45,7 @@ void draw(sgl::app_handle& ah, void* state, double dt) {
 	}
 	
 	ah.clear_display();
-	ah.render(cc->c, &cc->o, 1);
+	ah.render(cc->c, cc->o);
 	ah.update_display();
 }
 

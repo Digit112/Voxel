@@ -107,8 +107,8 @@ namespace sgl {
 		// Copy the buffer to the display
 		void update_display();
 		
-		// Render the following array of objects from the perspective of the passed camera.
-		void render(cam, const object*, int);
+		// Render the following object and all its children.
+		void render(cam, const object&);
 	
 	private:
 		KeySym translate_key(KeySym*, unsigned int min_kc, unsigned int ksprkc, unsigned int keycode, unsigned int state);

@@ -133,16 +133,17 @@ void darray<T>::append(T a) {
 }
 
 template<class T>
-int darray<T>::replace(T a, T b);
+int darray<T>::remove(T a) {
 	for (int i = 0; i < size; i++) {
 		if (data[i] == a) {
-			data[i] = b;
+			memmove(data+i, data+i+1, (size-i-1)*sizeof(T));
+			size--;
 			return i;
 		}
 	}
 	return -1;
 }
-	
+
 template<class T>
 darray<T>::~darray() {
 	if (data != NULL) {
