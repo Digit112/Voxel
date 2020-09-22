@@ -11,7 +11,7 @@ void draw(app_handle& ah, void* state, double dt) {
 	root->rotate(vecd3(0, 0, 1), 0.02);
 	
 	ah.clear_display();
-	ah.render(c, *root);
+	ah.render(c, *root, state, dt);
 	ah.update_display();
 }
 

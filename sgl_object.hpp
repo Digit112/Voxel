@@ -6,8 +6,6 @@
 #include "sgl_vec.hpp"
 
 namespace sgl {
-	class object;
-	
 	class object {
 	public:
 		// Transformations on this object
@@ -17,6 +15,27 @@ namespace sgl {
 		
 		// This object's mesh
 		wire_mesh m;
+		
+		// How to render this object
+		unsigned short render_function = 0;
+		
+		// "render_function = 0"
+		// CPU render function called per-object
+		void (*raster_method)(app_handle*, cam*, object*, void*, double) =  wireframe_render;
+		
+		// "render_function = 1"
+		// GPU render function called per-object
+		// Although they are not specified here, this must have the same arguments as raster_method.
+		cl_kernel* raster_kernel = NULL;
+		
+		// "render_function = 2"
+		// CPU render function called per-pixel
+		void (*raytrace_method)(app_handle*, cam*, object*, void*, double) = NULL;
+		
+		// "render_function = 3"
+		// GPU render function called per-pixel
+		// This must have the same arguments as raytrace_method.
+		cl_kernel* raytrace_kernel = NULL;
 		
 		// This object's children.
 		darray<object*> children;

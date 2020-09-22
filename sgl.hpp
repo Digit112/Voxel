@@ -5,18 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "sgl_cam.hpp"
-
-namespace sgl {
-	#include <X11/Xlib.h>
-	#include <X11/Xutil.h>
-	#include <X11/Xos.h>
-	
-	class app_handle;
-	class init_data;
-	class event;
-	class event_map;
-	
+namespace sgl {	
 	// Handle contains variables used to keep track of a specific window.
 	class app_handle {
 	public:
@@ -108,7 +97,7 @@ namespace sgl {
 		void update_display();
 		
 		// Render the following object and all its children.
-		void render(cam, const object&);
+		void render(cam, object&, void*, double);
 	
 	private:
 		KeySym translate_key(KeySym*, unsigned int min_kc, unsigned int ksprkc, unsigned int keycode, unsigned int state);
