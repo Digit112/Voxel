@@ -34,12 +34,13 @@ namespace sgl {
 #include <CL/cl.h>
 
 #include "../darray.hpp"
-#include "../util.cpp"
 #include "../sgl_vec.hpp"
+#include "../sgl_procedural.hpp"
+#include "../util.cpp"
 
+#include "../sgl_mesh.hpp"
+#include "../sgl_object.hpp"
 #include "../sgl_cam.hpp"
 #include "../sgl.hpp"
-#include "../sgl_mesh.hpp"
 #include "../default_renders.cpp"
-#include "../sgl_object.hpp"
 #include "../sgl_collider.hpp"

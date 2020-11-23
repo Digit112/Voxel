@@ -1,10 +1,6 @@
 #ifndef sgl_object
 #define sgl_object
 
-#include "darray.hpp"
-#include "sgl_mesh.hpp"
-#include "sgl_vec.hpp"
-
 namespace sgl {
 	class object {
 	public:

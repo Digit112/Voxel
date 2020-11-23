@@ -3,10 +3,6 @@
 
 #include "string.h"
 
-#include "sgl_vec.hpp"
-#include "darray.hpp"
-#include "util.cpp"
-
 namespace sgl {
 	class wire_mesh;
 	

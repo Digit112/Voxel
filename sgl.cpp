@@ -399,7 +399,7 @@ namespace sgl {
 	}
 	
 	// Render the passed object and all its children
-	void app_handle::render(cam c, object& o, void* s, double dt) {
+	void app_handle::render(cam& c, object& o, void* s, double dt) {
 		// Recursively call this function to render this object's children
 		for (int i = 0; i < o.children.size; i++) {
 			this->render(c, *o.children[i], s, dt);

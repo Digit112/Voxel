@@ -1,9 +1,6 @@
 #ifndef sgl_cam
 #define sgl_cam
 
-#include "sgl_vec.hpp"
-#include "sgl_object.hpp"
-
 namespace sgl {
 	class cam {
 	public:

@@ -67,40 +67,30 @@ namespace sgl {
 			// clipping causes errors. Thus, A/B are used instead of a/b
 			if (A.x < c->clip_near) {
 				dif = B - A;
-				// printf("dif(%.2f, %.2f, %.2f) ", dif.x, dif.y, dif.z);
 				dif = dif / dif.x * (c->clip_near - A.x) + A;
-				// printf("ac(%.2f, %.2f, %.2f) ", dif.x, dif.y, dif.z);
 				a.x =  (dif.x - c->clip_near) / (c->clip_far - c->clip_near) * 2 - 1;
 				a.y =  dif.y / (dif.x * slope_x);
 				a.z = -dif.z / (dif.x * slope_y);
-				// printf("ap(%.2f, %.2f, %.2f) bp(%.2f, %.2f, %.2f) ", a.x, a.y, a.z, b.x, b.y, b.z);
 			}
 			else if (B.x < c->clip_near) {
 				dif = A - B;
-				// printf("%d: A(%.2f, %.2f, %.2f) B(%.2f, %.2f, %.2f) dif(%.2f, %.2f, %.2f) ", j, A.x, A.y, A.z, B.x, B.y, B.z, dif.x, dif.y, dif.z);
 				dif = dif / dif.x * (c->clip_near - B.x) + B;
-				// printf("bc(%.2f, %.2f, %.2f) ", dif.x, dif.y, dif.z);
 				b.x =  (dif.x - c->clip_near) / (c->clip_far - c->clip_near) * 2 - 1;
 				b.y =  dif.y / (dif.x * slope_x);
 				b.z = -dif.z / (dif.x * slope_y);
-				// printf("bp(%.2f, %.2f, %.2f) ", b.x, b.y, b.z);
 			}
 			
 			// If both points are too far off one side, skip them. Clipping off +/-x is handled above
 			if (a.y > 1 && b.y > 1) {
-				// printf("clipped off +y\n");
 				continue;
 			}
 			if (a.y < -1 && b.y < -1) {
-				// printf("clipped off -y\n");
 				continue;
 			}
 			if (a.z > 1 && b.z > 1) {
-				// printf("clipped off +z\n");
 				continue;
 			}
 			if (a.z < -1 && b.z < -1) {
-				// printf("clipped off -z\n");
 				continue;
 			}
 			
@@ -123,27 +113,21 @@ namespace sgl {
 			if (dif.y != 0) {
 				// Clip against +y
 				t = 1 / dif.y * (1 - a.y);
-				// printf("  +yt: %.2f\n", t);
 				if (t > 0 && t < 1) {
 					if (a.y > 1) {
 						a = vecd3(a.x + t * dif.x, a.y + t * dif.y, a.z + t * dif.z);
-						// printf("    a -> (%.2f, %.2f, %.2f)\n", a.x, a.y, a.z);
 					} else {
 						b = vecd3(a.x + t * dif.x, a.y + t * dif.y, a.z + t * dif.z);
-						// printf("    b -> (%.2f, %.2f, %.2f)\n", b.x, b.y, b.z);
 					}
 					dif = b-a;
 				}
 				// Clip against -y
 				t = 1 / dif.y * (-1 - a.y);
-				// printf("  -yt: %.2f\n", t);
 				if (t > 0 && t < 1) {
 					if (a.y < -1) {
 						a = vecd3(a.x + t * dif.x, a.y + t * dif.y, a.z + t * dif.z);
-						// printf("    a -> (%.2f, %.2f, %.2f)\n", a.x, a.y, a.z);
 					} else {
 						b = vecd3(a.x + t * dif.x, a.y + t * dif.y, a.z + t * dif.z);
-						// printf("    b -> (%.2f, %.2f, %.2f)\n", b.x, b.y, b.z);
 					}
 					dif = b-a;
 				}
@@ -151,27 +135,21 @@ namespace sgl {
 			if (dif.z != 0) {
 				// Clip against +z
 				t = 1 / dif.z * (1 - a.z);
-				// printf("  +zt: %.2f\n", t);
 				if (t > 0 && t < 1) {
 					if (a.z > 1) {
 						a = vecd3(a.x + t * dif.x, a.y + t * dif.y, a.z + t * dif.z);
-						// printf("    a -> (%.2f, %.2f, %.2f)\n", a.x, a.y, a.z);
 					} else {
 						b = vecd3(a.x + t * dif.x, a.y + t * dif.y, a.z + t * dif.z);
-						// printf("    b -> (%.2f, %.2f, %.2f)\n", b.x, b.y, b.z);
 					}
 					dif = b-a;
 				}
 				// Clip against -z
 				t = 1 / dif.z * (-1 - a.z);
-				// printf("  -zt: %.2f\n", t);
 				if (t > 0 && t < 1) {
 					if (a.z < -1) {
 						a = vecd3(a.x + t * dif.x, a.y + t * dif.y, a.z + t * dif.z);
-						// printf("    a -> (%.2f, %.2f, %.2f)\n", a.x, a.y, a.z);
 					} else {
 						b = vecd3(a.x + t * dif.x, a.y + t * dif.y, a.z + t * dif.z);
-						// printf("    b -> (%.2f, %.2f, %.2f)\n", b.x, b.y, b.z);
 					}
 				}
 			}
@@ -184,4 +162,6 @@ namespace sgl {
 			ah->draw_line(s.x, s.y, e.x, e.y);
 		}
 	}
+	
+	void raycast_render(app_handle* ah, cam* c, object* o, void* state, double dt) {}
 }

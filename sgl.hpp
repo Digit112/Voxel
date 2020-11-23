@@ -97,7 +97,7 @@ namespace sgl {
 		void update_display();
 		
 		// Render the following object and all its children.
-		void render(cam, object&, void*, double);
+		void render(cam&, object&, void* state = NULL, double dt = 0);
 	
 	private:
 		KeySym translate_key(KeySym*, unsigned int min_kc, unsigned int ksprkc, unsigned int keycode, unsigned int state);
