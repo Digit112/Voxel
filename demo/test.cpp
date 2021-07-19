@@ -4,6 +4,8 @@
 
 #include "sgl.hpp"
 
+using namespace sgl;
+
 class cube_cursor {
 public:
 	int cx;
@@ -13,43 +15,51 @@ public:
 	int opt2;
 	int p;
 	
-	sgl::cam c;
+	render_group rg;
 	
-	sgl::object o;
+	cam c;
+	
+	object o;
 	
 	cube_cursor();
 };
 
-cube_cursor::cube_cursor() : cx(0), cy(0), opt1(64), opt2(32), p(sgl::wire_mesh::CUBE), c() {}
+expr<RGBAD> rend(app_handle* ah, vecd3 pos, vecd3 dir, void* state, double delta_time,
+		             darray<expr<RGBAD>>& render_results, darray<expr<RGBAD>>& object_results) {
+	return object_results[0];
+}
 
-void draw(sgl::app_handle& ah, void* state, double dt) {
+cube_cursor::cube_cursor() : cx(0), cy(0), opt1(64), opt2(32), p(wire_mesh::CUBE), rg(1, 0), c() {}
+
+void draw(app_handle& ah, void* state, double dt) {
+	printf("%.2f\n", dt);
 	cube_cursor* cc = (cube_cursor*) state;
 	
 	if (ah.get_key(25)) {
-		cc->c.translate(sgl::vecd3( 0.03, 0, 0), false);
+		cc->c.translate(vecd3( 0.03, 0, 0), false);
 	}
 	if (ah.get_key(39)) {
-		cc->c.translate(sgl::vecd3(-0.03, 0, 0), false);
+		cc->c.translate(vecd3(-0.03, 0, 0), false);
 	}
 	if (ah.get_key(38)) {
-		cc->c.translate(sgl::vecd3(0, -0.03, 0), false);
+		cc->c.translate(vecd3(0, -0.03, 0), false);
 	}
 	if (ah.get_key(40)) {
-		cc->c.translate(sgl::vecd3(0,  0.03, 0), false);
+		cc->c.translate(vecd3(0,  0.03, 0), false);
 	}
 	if (ah.get_key(24)) {
-		cc->c.translate(sgl::vecd3(0, 0, -0.03), false);
+		cc->c.translate(vecd3(0, 0, -0.03), false);
 	}
 	if (ah.get_key(26)) {
-		cc->c.translate(sgl::vecd3(0, 0,  0.03), false);
+		cc->c.translate(vecd3(0, 0,  0.03), false);
 	}
 	
 	ah.clear_display();
-	ah.render(cc->c, cc->o);
+	ah.render_rg(cc->c, cc->rg, state, dt);
 	ah.update_display();
 }
 
-void on_button(sgl::event e, sgl::app_handle& ah, void* state) {
+void on_button(event e, app_handle& ah, void* state) {
 	if (e.code == 1) {
 		cube_cursor* cc = (cube_cursor*) state;
 		
@@ -59,7 +69,7 @@ void on_button(sgl::event e, sgl::app_handle& ah, void* state) {
 }
 
 // WASD : 25 38 39 40
-void on_key(sgl::event e, sgl::app_handle& ah, void* state) {
+void on_key(event e, app_handle& ah, void* state) {
 	cube_cursor* cc = (cube_cursor*) state;
 //	printf("%d\n", e.code);
 	
@@ -74,37 +84,37 @@ void on_key(sgl::event e, sgl::app_handle& ah, void* state) {
 		}
 	}
 	else if (e.code == 113) {
-		if (cc->p > sgl::wire_mesh::CUBE) {
+		if (cc->p > wire_mesh::CUBE) {
 			cc->p = cc->p - 1;
 		}
 	}
 	else if (e.code == 114) {
-		if (cc->p < sgl::wire_mesh::TORUS) {
+		if (cc->p < wire_mesh::TORUS) {
 			cc->p = cc->p + 1;
 		}
 	} else {
 		return;
 	}
-	if (cc->p == sgl::wire_mesh::ICOSAHEDRON) {
+	if (cc->p == wire_mesh::ICOSAHEDRON) {
 		int temp = cc->opt2 - 2;
 		if (temp > 3) {
 			temp = 3;
 		}
-		sgl::wire_mesh m((sgl::wire_mesh::primtype) cc->p, temp, cc->opt2, 0.5);
+		wire_mesh m((wire_mesh::primtype) cc->p, temp, cc->opt2, 0.5);
 		cc->o.m = m;
-	} else if (cc->p == sgl::wire_mesh::CYLINDER) {
-		sgl::wire_mesh m((sgl::wire_mesh::primtype) cc->p, cc->opt2);
+	} else if (cc->p == wire_mesh::CYLINDER) {
+		wire_mesh m((wire_mesh::primtype) cc->p, cc->opt2);
 		cc->o.m = m;
-	} else if (cc->p == sgl::wire_mesh::GRID) {
-		sgl::wire_mesh m((sgl::wire_mesh::primtype) cc->p, cc->opt1/2, cc->opt2);
+	} else if (cc->p == wire_mesh::GRID) {
+		wire_mesh m((wire_mesh::primtype) cc->p, cc->opt1/2, cc->opt2);
 		cc->o.m = m;
 	} else {
-		sgl::wire_mesh m((sgl::wire_mesh::primtype) cc->p, cc->opt1, cc->opt2, 0.5);
+		wire_mesh m((wire_mesh::primtype) cc->p, cc->opt1, cc->opt2, 0.5);
 		cc->o.m = m;
 	}
 }
 
-void drag(sgl::event e, sgl::app_handle& ah, void* state) {
+void drag(event e, app_handle& ah, void* state) {
 	if (ah.get_button(1)) {
 		cube_cursor* cc = (cube_cursor*) state;
 		
@@ -114,20 +124,31 @@ void drag(sgl::event e, sgl::app_handle& ah, void* state) {
 		cc->cx = e.cx;
 		cc->cy = e.cy;
 		
-		cc->c.rotate(sgl::vecd3(0, 0, 1), theta_x);
-		cc->c.rotate(sgl::vecd3(0, 1, 0), theta_y, false);
+		cc->c.rotate(vecd3(0, 0, 1), theta_x);
+		cc->c.rotate(vecd3(0, 1, 0), theta_y, false);
 	}
 }
 
+int X_error_handler(Display* d, XErrorEvent* e) {
+	char buff[256];
+	XGetErrorText(d, e->error_code, buff, 256);
+	printf("%s\n", buff);
+}
+
 int main() {
+	XSetErrorHandler(X_error_handler);
+	
 	cube_cursor cc;
-	sgl::wire_mesh m(sgl::wire_mesh::CUBE);
-	cc.o.m = m;
-	cc.c.translate(sgl::vecd3(-4, 0, 0));
+	cc.rg.render = rend;
+	cc.rg.objects[0] = &cc.o;
+	
+	cc.o.m = wire_mesh(wire_mesh::CUBE);
+	cc.o.render = wire_mesh_renderer;
+	cc.c.translate(vecd3(-4, 0, 0));
 	cc.c.clip_near = 0.01;
 	
-	sgl::init_data id = {800, 800, 1, (char*) "Voxel", 0xFFFFFF, 0x0};
-	sgl::event_map em;
+	init_data id = {100, 100, 1, (char*) "Voxel", 0xFFFFFF, 0x0};
+	event_map em;
 	
 	em.draw = draw;
 	em.button_press = on_button;
@@ -136,7 +157,10 @@ int main() {
 	em.motion = drag;
 	em.state = (void*) &cc;
 	
-	sgl::app_handle ah;
+	app_handle ah;
+	
+	printf("%d\n", wire_mesh_renderer(&ah, &cc.o, cc.c.p, vecd3(3, 1.05, 0), NULL, 0).evaluate().R);
+	
 	ah.mainloop(id, em);
 	
 	return 0;
