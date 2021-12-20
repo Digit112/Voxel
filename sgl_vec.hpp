@@ -224,11 +224,16 @@ namespace sgl {
 		quaternion normalize();
 		quaternion normalize(double t);
 		
+		// Produces a quaternion representing rotation "b" followed by rotation "a".
 		static quaternion hamilton(const quaternion& a, const quaternion& b);
+		
+		// Hamilton product, but does not compute the real component.
 		static vecd3 vhamilton(const quaternion& a, const quaternion& b);
 		
+		// Hamilton product, but the result is stored in quaternion "a" and a new quaternion is not created in memory.
 		quaternion& mhamilton(quaternion& a, const quaternion& b);
 		
+		// Applies a rotation to a vector.
 		vecd3 apply(const vecd3& in) const;
 		
 		static vecd3 rotate(vecd3 in, vecd3 axis_offset, vecd3 axis_dir, double theta);

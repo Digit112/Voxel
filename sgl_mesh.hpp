@@ -8,9 +8,6 @@ namespace sgl {
 	
 	class wire_mesh {
 	public:
-		int pn;
-		int en;
-		
 		darray<vecd3> p;
 		darray<veci2> e;
 		
@@ -18,7 +15,7 @@ namespace sgl {
 		
 		wire_mesh();
 		wire_mesh(int pn, int en);
-		wire_mesh(darray<vecd3> p, int pn, darray<veci2> e, int en);
+		wire_mesh(darray<vecd3> p, darray<veci2> e);
 		
 		// From file
 		wire_mesh(char*);

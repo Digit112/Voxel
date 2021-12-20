@@ -27,12 +27,13 @@ public:
 	int cap;  // Maximum size that can be used without reallocation.
 	int size; // Current logical size of the array. Must be <= cap.
 	
+	// Constructors
 	darray<T>();
 	darray<T>(int s);
 	darray<T>(int s, int c);
 	
+	// For copying darrays. Either will perform a deep copy so if a shallow copy is sufficient, use pointers or references.
 	darray<T>(const darray<T>&);
-	
 	void operator=(const darray<T>&);
 	
 	// Access element at index. Supports negative indices to index from back and bound checking.

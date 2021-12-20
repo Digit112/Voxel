@@ -1,5 +1,57 @@
-// This file just contains some default render functions
+// This file contains the default render functions
 namespace sgl {
+	// Render function for wire_mesh objects
+	// Works with standard consolidation render group.
+	// wire_mesh objects with this render function can go directly under the root render group.
+	expr<RGBAD> wire_mesh_renderer(app_handle* ah, object* o, vecd3 p1, vecd3 d1, void* state, double delta_time) {
+//		printf("(%.2lf, %.2lf, %.2lf)\n", d1.x, d1.y, d1.z);
+		if (o->is_hidden)
+			return expr<RGBAD>(RGBAD(0, 0, 0, 0, INFINITY));
+		
+//		printf("Ray (%.2lf, %.2lf, %.2lf) + (%.2lf, %.2lf, %.2lf)\n", p1.x, p1.y, p1.z, d1.x, d1.y, d1.z);
+		
+		for (int i = 0; i < o->m.e.size; i++) {
+			veci2 edge = o->m.e[i];
+			
+			vecd3 l1 = o->m.p[edge.y];
+			vecd3 l2 = o->m.p[edge.x];
+			
+//			printf("Edge %d connects (%.2lf, %.2lf, %.2lf), (%.2lf, %.2lf, %.2lf)\n", i, l1.x, l1.y, l1.z, l2.x, l2.y, l2.z);
+			
+			vecd3 p2 = l2;
+			vecd3 d2 = l1 - p2;
+			
+//			printf("Connecting Vector is (%.2lf, %.2lf, %.2lf) + (%.2lf, %.2lf, %.2lf)\n", p2.x, p2.y, p2.z, d2.x, d2.y, d2.z);
+			
+			vecd3 n  = vecd3::cross(d1, d2);
+			vecd3 n1 = vecd3::cross(d1, n);
+			vecd3 n2 = vecd3::cross(d2, n);
+			
+//			printf("Intermediary Normals are n: (%.2lf, %.2lf, %.2lf), n1: (%.2lf, %.2lf, %.2lf), n2: (%.2lf, %.2lf, %.2lf)\n", n.x, n.y, n.z, n1.x, n1.y, n1.z, n2.x, n2.y, n2.z);
+			
+			double min_dis = fabs(vecd3::dot(n, p1-p2)/n.mag());
+			vecd3 c1 = p1 + d1 * (vecd3::dot(p2 - p1, n2) / vecd3::dot(d1, n2));
+			vecd3 c2 = p2 + d2 * (vecd3::dot(p1 - p2, n1) / vecd3::dot(d2, n1));
+			vecd3 depth_v = c1 - p1;
+			
+//			printf("min_dis: %lf\n", min_dis);
+//			printf("c1: (%.2lf, %.2lf, %.2lf), c2: (%.2lf, %.2lf, %.2lf)\n", c1.x, c1.y, c1.z, c2.x, c2.y, c2.z);
+//			printf("depth_v: (%.2lf, %.2lf, %.2lf)\n", depth_v.x, depth_v.y, depth_v.z);
+			
+			vecd3 t = (c2 - p2) / d2;
+			bool c2_is_on_seg = (t.x >= 0 && t.x <= 1) || (t.y >= 0 && t.y <= 1) || (t.z >= 0 && t.z <= 1);
+			
+//			printf("t:(%.2lf, %.2lf, %.2lf)\n", t.x, t.y, t.z);
+			
+//			printf("depth_v . d1: %.2f\n", vecd3::dot(d1, depth_v));
+			
+			if (min_dis <= 0.1 && vecd3::dot(d1, depth_v) > 0 && c2_is_on_seg)
+				return expr<RGBAD>(RGBAD(255, 255, 255, 255, depth_v.mag()));
+		}
+		
+		return expr<RGBAD>(RGBAD(0, 0, 0, 0, INFINITY));
+	}
+	
 	void wireframe_render(app_handle* ah, cam* c, object* o, void* state, double dt) {
 		sgl::wire_mesh m;
 		if (o->is_hidden) {
@@ -38,8 +90,8 @@ namespace sgl {
 		// Project each point within the viewing frustum to the cube (-1, -1, -1) (1, 1, 1)
 		// Points behind the near clipping plane are skipped,
 		// edges including this point are clipped against the near plane while iterating over edges
-		darray<vecd3> p_pts(m.pn);
-		for (int j = 0; j < m.pn; j++) {
+		darray<vecd3> p_pts(m.p.size);
+		for (int j = 0; j < m.p.size; j++) {
 			if (m.p[j].x < c->clip_near) {
 				continue;
 			}
@@ -50,7 +102,7 @@ namespace sgl {
 		}
 		
 		// Iterate over and render each edge.
-		for (int j = 0; j < m.en; j++) {
+		for (int j = 0; j < m.e.size; j++) {
 			a = p_pts[m.e[j].x];
 			b = p_pts[m.e[j].y];
 			

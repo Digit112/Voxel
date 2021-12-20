@@ -25,7 +25,7 @@ namespace sgl {
 	}
 	
 	// app_handle constructor
-	app_handle::app_handle() : do_destroy(false), is_focused(true), is_hovered(false) {
+	app_handle::app_handle() : rays_n(0), rays(NULL), do_destroy(false), is_focused(true), is_hovered(false) {
 		for (int i = 0; i < 198; i++) {
 			key_states[i] = false;
 		}
@@ -40,6 +40,7 @@ namespace sgl {
 		
 		d = XOpenDisplay(NULL);
 		if (d == NULL) {
+			printf("Failed to Open Display\n");
 			return 1;
 		}
 		
@@ -58,19 +59,38 @@ namespace sgl {
 		
 //		XSetLineAttributes(d, gc, 4, LineSolid, CapButt, JoinMiter);
 		
-		XVisualInfo vi;
-		XMatchVisualInfo(d, s, 24, TrueColor, &vi);
-		v = vi.visual;
-		
 		sp = DefaultScreenOfDisplay(d);
+		if (sp == NULL) {
+			printf("Failed to Get Screen\n");
+			return 1;
+		}
+		
 		sw = WidthOfScreen(sp);
 		sh = HeightOfScreen(sp);
 		sd = DefaultDepthOfScreen(sp);
+		
+		v = DefaultVisual(d, 0);
+		if (v == NULL) {
+			printf("Failed to Get Visual Structure\n");
+			return 1;
+		}
 		
 		pm = XCreatePixmap(d, w, sw, sh, sd);
 		XSetForeground(d, gc, gcv.background);
 		XFillRectangle(d, pm, gc, 0, 0, sw, sh);
 		XSetForeground(d, gc, gcv.foreground);
+		
+		int size = sw*sh*4;
+		im_buff = (char*) malloc(size);
+		for (int i = 0; i < size; i++) {
+			im_buff[i] = 0;
+		}
+		
+		im = XCreateImage(d, v, sd, ZPixmap, 0, im_buff, sw, sh, 32, 0);
+		if (im == NULL) {
+			printf("Failed to create image buffer.\n");
+			return 1;
+		}
 		
 		XStoreName(d, w, id.title);
 				
@@ -346,6 +366,7 @@ namespace sgl {
 	}
 	
 	void app_handle::update_display() {
+		XPutImage(d, pm, gc, im, 0, 0, 0, 0, win_w, win_h);
 		XCopyArea(d, pm, w, gc, 0, 0, win_w, win_h, 0, 0);
 	}
 	
@@ -398,31 +419,74 @@ namespace sgl {
 		}
 	}
 	
-	// Render the passed object and all its children
-	void app_handle::render(cam& c, object& o, void* s, double dt) {
-		// Recursively call this function to render this object's children
-		for (int i = 0; i < o.children.size; i++) {
-			this->render(c, *o.children[i], s, dt);
-		}
+	void app_handle::instantiate_rays(vecd3 pos, quaternion rot, double theta, int width, int height) {
+		vecd3 z_ax = rot.apply(vecd3(0, 0, 1));
+		vecd3 y_ax = rot.apply(vecd3(0, 1, 0));
 		
-		// Render this object
-		unsigned short rf = o.render_function;
-		if (rf > 3) {
-			printf("Error: Invalid render_function of %u.\n", rf);
-			exit(1);
+		rays_n = width*height;
+		if (rays != NULL) free(rays);
+		rays = (double*) malloc(width*height*6*sizeof(double));
+		
+		double pw = 2*atan(theta/2);
+		double ph = pw*height/width;
+		
+		double dx = pw/width;
+		double dy = ph/height;
+		
+		for (int py = 0; py < height; py++) {
+			double z = ((double) py/height - 0.5) * ph;
+			
+			int pitch = py*width;
+			for (int px = 0; px < width; px++) {
+				double y = ((double) px/width - 0.5) * pw;
+				
+				vecd3 dir = rot.apply(vecd3(1, y, z)).normalize();
+				
+				int i = (px+pitch)*6;
+				
+				rays[i  ] = pos.x;
+				rays[i+1] = pos.y;
+				rays[i+2] = pos.z;
+				
+				rays[i+3] = dir.x;
+				rays[i+4] = dir.y;
+				rays[i+5] = dir.z;
+				
+//				printf("%.2lf, %.2lf, %.2lf\n", rays[i+3], rays[i+4], rays[i+5]);
+			}
 		}
-		if (rf == 0) {
-			o.raster_method(this, &c, &o, s, dt);
+	}
+	
+	// Render the scene from camera c
+	void app_handle::render_rg(cam& c, render_group& rg, void* s, double dt) {
+		// Add a batch of raycasts to the app_handle.
+		instantiate_rays(c.p, c.r, c.theta, win_w, win_h);
+		
+		for (int py = 0; py < win_h; py++) {
+			int r_pitch = py*win_w;
+			int i_pitch = py*sw;
+			for (int px = 0; px < win_w; px++) {
+				int r_i = (px+r_pitch)*6;
+				vecd3 pos(rays[r_i  ], rays[r_i+1], rays[r_i+2]);
+				vecd3 dir(rays[r_i+3], rays[r_i+4], rays[r_i+5]);
+				
+				expr<RGBAD> result = rg.render_prop(this, pos, dir, NULL, dt);
+				
+				RGBAD pix = result.evaluate();
+				
+				int i_i = 4*(px+i_pitch);
+				im_buff[i_i+2] = pix.R;
+				im_buff[i_i+1] = pix.G;
+				im_buff[i_i  ] = pix.B;
+				im_buff[i_i+3] = pix.A;
+			}
 		}
-		else if (rf == 1) {
-			printf("Logic not yet implemented for kernels.\n");
-		}
-		else if (rf == 2) {
-			o.raytrace_method(this, &c, &o, s, dt);
-		}
-		else if (rf == 3) {
-			printf("Logic not yet implemented for kernels.\n");
-		}
+	}
+	
+	app_handle::~app_handle() {
+		free(im_buff);
+		if (rays != NULL)
+			free(rays);
 	}
 }
 

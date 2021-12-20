@@ -44,7 +44,7 @@ namespace sgl {
 	}
 	
 	void cam::apply(wire_mesh& a) {
-		for (int i = 0; i < a.pn; i++) {
+		for (int i = 0; i < a.p.size; i++) {
 			a.p[i] = (!r).apply(a.p[i] - p);
 		}
 	}

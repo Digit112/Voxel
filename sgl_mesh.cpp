@@ -1,11 +1,8 @@
 namespace sgl {
-	wire_mesh::wire_mesh() : p(), pn(0), e(), en(0) {}
+	wire_mesh::wire_mesh() : p(0), e(0) {}
 	
-	wire_mesh::wire_mesh(int pn, int en) : pn(pn), en(en) {
-		p = darray<vecd3>(pn);
-		e = darray<veci2>(en);
-	}
-	wire_mesh::wire_mesh(darray<vecd3> p, int pn, darray<veci2> e, int en) : p(p), pn(pn), e(e), en(en) {}
+	wire_mesh::wire_mesh(int pn, int en) : p(pn), e(en) {}
+	wire_mesh::wire_mesh(darray<vecd3> p, darray<veci2> e) : p(p), e(e) {}
 	
 	wire_mesh::wire_mesh(char* fn) {
 		FILE* fp;
@@ -13,8 +10,8 @@ namespace sgl {
 		int a;
 		int b;
 		
-		pn = 0;
-		en = 0;
+		p.size = 0;
+		e.size = 0;
 		
 		int pc = 0;
 		int ec = 0;
@@ -38,8 +35,8 @@ namespace sgl {
 			
 			if (str[0] == 'p' && str[1] == 'n') {
 				next(str + 2, 0, substr);
-				pn = atoi(substr);
-				p = darray<vecd3>(pn);
+				p.size = atoi(substr);
+				p = darray<vecd3>(p.size);
 				pn_known = true;
 			}
 			else if (str[0] == 'v') {
@@ -62,8 +59,8 @@ namespace sgl {
 			
 			if (str[0] == 'e' && str[1] == 'n') {
 				next(str + 2, 0, substr);
-				en = atoi(substr);
-				e = darray<veci2>(en);
+				e.size = atoi(substr);
+				e = darray<veci2>(e.size);
 				en_known = true;
 			}
 			else if (str[0] == 'e') {
@@ -87,9 +84,6 @@ namespace sgl {
 	
 	wire_mesh::wire_mesh(primtype prim, int opt1 = 0, int opt2 = 0, double opt3 = 0.0) {
 		if (prim == CUBE) {
-			pn = 8;
-			en = 12;
-			
 			p = darray<vecd3>(8);
 			e = darray<veci2>(12);
 			
@@ -116,24 +110,20 @@ namespace sgl {
 			e[11] = veci2(6, 7);
 		}
 		else if (prim == POLYGON) {
-			pn = opt2;
-			en = opt2;
-			p = darray<vecd3>(pn);
-			e = darray<veci2>(en);
+			p = darray<vecd3>(opt2);
+			e = darray<veci2>(opt2);
 			
 			double theta;
-			for (int i = 0; i < pn; i++) {
-				theta = (double) i/pn * 6.28318;
+			for (int i = 0; i < p.size; i++) {
+				theta = (double) i/p.size * 6.28318;
 				p[i] = vecd3(cos(theta), sin(theta), 0);
 				e[i] = veci2(i, i-1);
 			}
-			e[0] = veci2(0, pn-1);
+			e[0] = veci2(0, p.size-1);
 		}
 		else if (prim == GRID) {
-			pn = opt1*opt2;
-			en = (opt1-1)*opt2 + (opt2-1)*opt1;
-			p = darray<vecd3>(pn);
-			e = darray<veci2>(en);
+			p = darray<vecd3>(opt1*opt2);
+			e = darray<veci2>((opt1-1)*opt2 + (opt2-1)*opt1);
 			
 			double xp;
 			double yp;
@@ -153,9 +143,6 @@ namespace sgl {
 			}
 		}
 		else if (prim == ICOSAHEDRON) {
-			pn = 12;
-			en = 30;
-			
 			p = darray<vecd3>(12);
 			e = darray<veci2>(30);
 			
@@ -207,8 +194,8 @@ namespace sgl {
 			
 			// Refine
 			for (int i = 2; i <= opt1; i++) {
-				int opn = pn;
-				int oen = en;
+				int opn = p.size;
+				int oen = e.size;
 				int le = oen;
 				int lp = opn;
 				vecd3 op[opn];
@@ -220,13 +207,13 @@ namespace sgl {
 					oe[j] = e[j];
 				}
 				
-				pn = en * (i-1) + pn;
-				en = 30 * pow(pow(2, i-1), 2);
+				p.size = e.size * (i-1) + p.size;
+				e.size = 30 * pow(pow(2, i-1), 2);
 				
 //				delete[] p;
 //				delete[] e;
-				p = darray<vecd3>(pn);
-				e = darray<veci2>(en);
+				p = darray<vecd3>(p.size);
+				e = darray<veci2>(e.size);
 				for (int j = 0; j < opn; j++) {
 					p[j] = op[j];
 				}
@@ -282,11 +269,8 @@ namespace sgl {
 			}
 		}
 		else if (prim == CYLINDER && opt1 > 2) {
-			pn = opt1 * 2;
-			en = opt1 * 3;
-			
-			p = darray<vecd3>(pn);
-			e = darray<veci2>(en);
+			p = darray<vecd3>(opt1 * 2);
+			e = darray<veci2>(opt1 * 3);
 			
 			double x, y;
 			p[0] = vecd3(0, 1, 1);
@@ -307,11 +291,8 @@ namespace sgl {
 			}
 		}
 		else if (prim == UVSPHERE && opt1 > 2 && opt2 > 2) {
-			pn = opt2 * opt1 + 2;
-			en = pn*2 + opt1 * 3;
-			
-			p = darray<vecd3>(pn);
-			e = darray<veci2>(en);
+			p = darray<vecd3>(opt2 * opt1 + 2);
+			e = darray<veci2>(p.size*2 + opt1 * 3);
 			
 			double lr;
 			double lh;
@@ -346,19 +327,16 @@ namespace sgl {
 			e[(opt2*(opt1-1)+opt2-1)*2+1] = veci2((opt2*(opt1-1)+opt2-1), opt2-1);
 			
 			// Build n-gons
-			p[pn-2] = vecd3(0, 0, 1);
-			p[pn-1] = vecd3(0, 0, -1);
+			p[p.size-2] = vecd3(0, 0, 1);
+			p[p.size-1] = vecd3(0, 0, -1);
 			for (int r = 0; r < opt1; r++) {
-				e[en-2*(r+1)-1] = veci2(pn-1, opt2*r+opt2-1);
-				e[en-2*(r+1)  ] = veci2(pn-2, opt2*r);
+				e[e.size-2*(r+1)-1] = veci2(p.size-1, opt2*r+opt2-1);
+				e[e.size-2*(r+1)  ] = veci2(p.size-2, opt2*r);
 			}
 		}
 		else if (prim == TORUS && opt1 > 2 && opt2 > 2) {
-			pn = opt1 * opt2;
-			en = pn*2;
-			
-			p = darray<vecd3>(pn);
-			e = darray<veci2>(en);
+			p = darray<vecd3>(opt1 * opt2);
+			e = darray<veci2>(p.size*2);
 			
 			double lm;
 			double lM;
@@ -394,26 +372,26 @@ namespace sgl {
 	}
 	
 	void wire_mesh::translate(vecd3 t) {
-		for (int i = 0; i < pn; i++) {
+		for (int i = 0; i < p.size; i++) {
 			p[i] = p[i] + t;
 		}
 	}
 	
 	void wire_mesh::rotate(quaternion r) {
-		for (int i = 0; i < pn; i++) {
+		for (int i = 0; i < p.size; i++) {
 			p[i] = r.apply(p[i]);
 		}
 	}
 	
 	void wire_mesh::rotate(vecd3 axis, double theta) {
 		quaternion r = quaternion(axis, theta);
-		for (int i = 0; i < pn; i++) {
+		for (int i = 0; i < p.size; i++) {
 			p[i] = r.apply(p[i]);
 		}
 	}
 	
 	void wire_mesh::scale(vecd3 s) {
-		for (int i = 0; i < pn; i++) {
+		for (int i = 0; i < p.size; i++) {
 			p[i] = p[i] * s;
 		}
 	}

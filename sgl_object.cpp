@@ -110,14 +110,14 @@ namespace sgl {
 	}
 	
 	wire_mesh& object::applied(wire_mesh& o) const {
-		o.pn = m.pn;
-		o.en = m.en;
-		o.p = darray<vecd3>(o.pn);
-		o.e = darray<veci2>(o.en);
-		for (int i = 0; i < o.pn; i++) {
+		o.p.size = m.p.size;
+		o.e.size = m.e.size;
+		o.p = darray<vecd3>(o.p.size);
+		o.e = darray<veci2>(o.e.size);
+		for (int i = 0; i < o.p.size; i++) {
 			o.p[i] = r.apply(m.p[i] * s) + p;
 		}
-		for (int i = 0; i < o.en; i++) {
+		for (int i = 0; i < o.e.size; i++) {
 			o.e[i] = m.e[i];
 		}
 		return o;

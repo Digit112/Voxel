@@ -6,7 +6,7 @@
 #include <time.h>
 
 namespace sgl {	
-	// Handle contains variables used to keep track of a specific window.
+	// Handle contains variables used to keep track of a specific window and functions for manipulating that window.
 	class app_handle {
 	public:
 		// X11 hooks
@@ -15,6 +15,9 @@ namespace sgl {
 		Window w;
 		
 		Visual* v;
+		
+		char* im_buff;
+		XImage* im;
 		
 		Screen* sp;
 		
@@ -32,6 +35,11 @@ namespace sgl {
 		int sw;
 		int sh;
 		int sd;
+		
+		// List of raycasts to perform. Length is an integer multiple of 6 doubles, where each entry is (px, py, pz), (dx, dy, dz)
+		// And direction d is normalized.
+		int rays_n;
+		double* rays;
 		
 		// Set to true to destroy the window in the next event cycle
 		bool do_destroy;
@@ -96,8 +104,14 @@ namespace sgl {
 		// Copy the buffer to the display
 		void update_display();
 		
-		// Render the following object and all its children.
-		void render(cam&, object&, void* state = NULL, double dt = 0);
+		// Instantiate rays to be rendered.
+		void instantiate_rays(vecd3 pos, quaternion rot, double theta, int width, int height);
+		
+		// Render with render groups
+		void render_rg(cam& c, render_group& rg, void* s, double dt);
+		
+		// Destructor
+		~app_handle();
 	
 	private:
 		KeySym translate_key(KeySym*, unsigned int min_kc, unsigned int ksprkc, unsigned int keycode, unsigned int state);
@@ -118,7 +132,8 @@ namespace sgl {
 	};
 	
 	// Holds events
-	struct event {
+	class event {
+	public:
 		// Cursor position relative to event window
 		int cx;
 		int cy;

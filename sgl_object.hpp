@@ -12,26 +12,8 @@ namespace sgl {
 		// This object's mesh
 		wire_mesh m;
 		
-		// How to render this object
-		unsigned short render_function = 0;
-		
-		// "render_function = 0"
-		// CPU render function called per-object
-		void (*raster_method)(app_handle*, cam*, object*, void*, double) =  wireframe_render;
-		
-		// "render_function = 1"
-		// GPU render function called per-object
-		// Although they are not specified here, this must have the same arguments as raster_method.
-		cl_kernel* raster_kernel = NULL;
-		
-		// "render_function = 2"
-		// CPU render function called per-pixel
-		void (*raytrace_method)(app_handle*, cam*, object*, void*, double) = NULL;
-		
-		// "render_function = 3"
-		// GPU render function called per-pixel
-		// This must have the same arguments as raytrace_method.
-		cl_kernel* raytrace_kernel = NULL;
+		// Render this object. Called by parent.
+		expr<RGBAD> (*render)(app_handle* ah, object* o, vecd3 pos, vecd3 dir, void* state, double dt);
 		
 		// This object's children.
 		darray<object*> children;
@@ -39,6 +21,7 @@ namespace sgl {
 		// This object's parent
 		object* parent;
 		
+		// RGBA
 		unsigned int color;
 		
 		bool is_hidden;
@@ -47,9 +30,9 @@ namespace sgl {
 		object();
 		
 		// Initialize with space for child objects
-		object(int);
+		object(int n);
 		
-		// Properly set or change this object's parent
+		// Set or change this object's parent
 		void set_parent(object* p);
 		
 		void translate(vecd3 t, bool is_global);
