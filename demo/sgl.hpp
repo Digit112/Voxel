@@ -1,3 +1,7 @@
+// Include Utility library
+#include "../Utility/util.hpp"
+using namespace util;
+
 namespace sgl {
 	class app_handle;
 	class init_data;
@@ -25,14 +29,6 @@ namespace sgl {
 	class render_group;
 
 	class wire_mesh;
-
-	class veci2;
-	class vecd2;
-	class veci3;
-	class vecd3;
-	class veci4;
-	class vecd4;
-	class quaternion;
 	
 	template<class T>
 	class expr;
@@ -48,12 +44,10 @@ namespace sgl {
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
+#define CL_TARGET_OPENCL_VERSION 220
 #include <CL/cl.h>
 
-#include "../darray.hpp"
-#include "../sgl_vec.hpp"
 #include "../sgl_expr.hpp"
-#include "../sgl_procedural.hpp"
 #include "../util.cpp"
 
 #include "../sgl_mesh.hpp"

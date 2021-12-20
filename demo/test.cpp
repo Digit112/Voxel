@@ -133,6 +133,7 @@ int X_error_handler(Display* d, XErrorEvent* e) {
 	char buff[256];
 	XGetErrorText(d, e->error_code, buff, 256);
 	printf("%s\n", buff);
+	return 0;
 }
 
 int main() {

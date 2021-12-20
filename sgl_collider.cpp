@@ -3,8 +3,8 @@ namespace sgl {
 		// Create local copies of member variables for scaling
 		double _xp = xp*s.x; double _xn = xn*s.x; double _yp = yp*s.y; double _yn = yn*s.y; double _zp = zp*s.z; double _zn = zn*s.z;
 		origin = origin - p;
-		origin = (!r).apply(origin);
-		dir = (!r).apply(dir);
+		origin = (~r).apply(origin);
+		dir = (~r).apply(dir);
 		
 		vecd3 nan_vec = vecd3(NAN, NAN, NAN);
 		
@@ -25,6 +25,7 @@ namespace sgl {
 		if (clip_pt_x.y > _yp || clip_pt_x.y < _yn || clip_pt_x.z > _zp || clip_pt_x.z < _zn) {
 			clip_pt_x = nan_vec;
 		}
+		
 		// Whether to intersect with +y or -y
 		if (dir.y < 0 && origin.y > _yp) {
 			// +y
@@ -37,6 +38,7 @@ namespace sgl {
 		if (clip_pt_y.x > _xp || clip_pt_y.x < _xn || clip_pt_y.z > _zp || clip_pt_y.z < _zn) {
 			clip_pt_y = nan_vec;
 		}
+		
 		// Whether to intersect with +z or -z
 		if (dir.z < 0 && origin.z > _zp) {
 			// +z
@@ -80,5 +82,8 @@ namespace sgl {
 		if (clip_pt_z.is_nan()) {
 			return clip_pt_x.sqr_mag() < clip_pt_y.sqr_mag() ? clip_pt_x : clip_pt_y;
 		}
+		
+		// This should never be reached
+		return nan_vec;
 	}
 }

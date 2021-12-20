@@ -38,14 +38,14 @@ namespace sgl {
 	
 	object cam::apply(const object& a) {
 		object o = a;
-		o.p = (!r).apply(a.p - p);
-		o.r = quaternion::hamilton(a.r, !r);
+		o.p = (~r).apply(a.p - p);
+		o.r = quaternion::hamilton(a.r, ~r);
 		return o;
 	}
 	
 	void cam::apply(wire_mesh& a) {
 		for (int i = 0; i < a.p.size; i++) {
-			a.p[i] = (!r).apply(a.p[i] - p);
+			a.p[i] = (~r).apply(a.p[i] - p);
 		}
 	}
 }

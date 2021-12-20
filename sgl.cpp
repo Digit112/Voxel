@@ -381,12 +381,12 @@ namespace sgl {
 //		int num   = state & 16;
 		
 		// If no modifiers are active use the first keysym
-		if (! (state & 2) && ! (state & 1)) {
+		if (!(state & 2) && !(state & 1)) {
 			return ks[(keycode - min_kc) * ksprkc];
 		}
 		
 		// If shift is off and capslock is on, convert lowercase letters to uppercase letters
-		if (state & 2 && ! (state & 1)) {
+		if (state & 2 && !(state & 1)) {
 			t = (keycode - min_kc) * ksprkc;
 			if (ks[t] >= 97 && ks[t] <= 122) {
 				return ks[t] - 32;
@@ -410,13 +410,16 @@ namespace sgl {
 		}
 		
 		// If shift is on and capslock is off, use the second keysym if available
-		if (state & 1 && ! (state & 2)) {
+		if (state & 1 && !(state & 2)) {
 			t = (keycode - min_kc) * ksprkc + 1;
 			if (ks[t] == NoSymbol) {
 				return ks[t-1];
 			}
 			return ks[t];
 		}
+		
+		// This point in the code will never be reached
+		return 0;
 	}
 	
 	void app_handle::instantiate_rays(vecd3 pos, quaternion rot, double theta, int width, int height) {

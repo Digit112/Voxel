@@ -6,7 +6,6 @@ namespace sgl {
 	public:
 		// Children
 		darray<render_group*> renders;
-		
 		darray<object*> objects;
 		
 		render_group();
