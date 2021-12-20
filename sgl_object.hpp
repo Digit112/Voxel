@@ -13,7 +13,7 @@ namespace sgl {
 		wire_mesh m;
 		
 		// Render this object. Called by parent.
-		expr<RGBAD> (*render)(app_handle* ah, object* o, vecd3 pos, vecd3 dir, void* state, double dt);
+		RGBAD (*render)(app_handle* ah, object* o, vecd3 pos, vecd3 dir, void* state, double dt);
 		
 		// This object's children.
 		darray<object*> children;

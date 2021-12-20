@@ -24,8 +24,8 @@ public:
 	cube_cursor();
 };
 
-expr<RGBAD> rend(app_handle* ah, vecd3 pos, vecd3 dir, void* state, double delta_time,
-		             darray<expr<RGBAD>>& render_results, darray<expr<RGBAD>>& object_results) {
+RGBAD rend(app_handle* ah, vecd3 pos, vecd3 dir, void* state, double delta_time,
+		   darray<RGBAD>& render_results, darray<RGBAD>& object_results) {
 	return object_results[0];
 }
 
@@ -160,7 +160,7 @@ int main() {
 	
 	app_handle ah;
 	
-	printf("%d\n", wire_mesh_renderer(&ah, &cc.o, cc.c.p, vecd3(3, 1.05, 0), NULL, 0).evaluate().R);
+	printf("%d\n", wire_mesh_renderer(&ah, &cc.o, cc.c.p, vecd3(3, 1.05, 0), NULL, 0).R);
 	
 	ah.mainloop(id, em);
 	

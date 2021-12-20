@@ -3,10 +3,11 @@ namespace sgl {
 	// Render function for wire_mesh objects
 	// Works with standard consolidation render group.
 	// wire_mesh objects with this render function can go directly under the root render group.
-	expr<RGBAD> wire_mesh_renderer(app_handle* ah, object* o, vecd3 p1, vecd3 d1, void* state, double delta_time) {
+	RGBAD wire_mesh_renderer(app_handle* ah, object* o, vecd3 p1, vecd3 d1, void* state, double delta_time) {
 //		printf("(%.2lf, %.2lf, %.2lf)\n", d1.x, d1.y, d1.z);
-		if (o->is_hidden)
-			return expr<RGBAD>(RGBAD(0, 0, 0, 0, INFINITY));
+		if (o->is_hidden) {
+			return RGBAD(0, 0, 0, 0, INFINITY);
+		}
 		
 //		printf("Ray (%.2lf, %.2lf, %.2lf) + (%.2lf, %.2lf, %.2lf)\n", p1.x, p1.y, p1.z, d1.x, d1.y, d1.z);
 		
@@ -45,11 +46,12 @@ namespace sgl {
 			
 //			printf("depth_v . d1: %.2f\n", vecd3::dot(d1, depth_v));
 			
-			if (min_dis <= 0.1 && vecd3::dot(d1, depth_v) > 0 && c2_is_on_seg)
-				return expr<RGBAD>(RGBAD(255, 255, 255, 255, depth_v.mag()));
+			if (min_dis <= 0.1 && vecd3::dot(d1, depth_v) > 0 && c2_is_on_seg) {
+				return RGBAD(255, 255, 255, 255, depth_v.mag());
+			}
 		}
 		
-		return expr<RGBAD>(RGBAD(0, 0, 0, 0, INFINITY));
+		return RGBAD(0, 0, 0, 0, INFINITY);
 	}
 	
 	void wireframe_render(app_handle* ah, cam* c, object* o, void* state, double dt) {

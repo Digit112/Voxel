@@ -2,10 +2,10 @@ namespace sgl {
 	render_group::render_group() : renders(0), objects(0), render(NULL) {}
 	render_group::render_group(int o, int r) : renders(r), objects(o), render(NULL) {}
 	
-	expr<RGBAD> render_group::render_prop(app_handle* ah, vecd3 origin, vecd3 dir, void* state, double delta_time) {
+	RGBAD render_group::render_prop(app_handle* ah, vecd3 origin, vecd3 dir, void* state, double delta_time) {
 		// Hold the results of child nodes
-		darray<expr<RGBAD>> render_results(renders.size);
-		darray<expr<RGBAD>> object_results(objects.size);
+		darray<RGBAD> render_results(renders.size);
+		darray<RGBAD> object_results(objects.size);
 		
 		// Propogate data to child render groups
 		for (int i = 0; i < renders.size; i++) {
